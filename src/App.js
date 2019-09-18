@@ -1,24 +1,28 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter as Router, Route } from 'react-router-dom'
+import Header from "./app/header";
+import List from './app/list';
+import Upload from './app/upload';
+import Annotate from './app/annotate';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Router>
+        <header className="App-header">
+          <Header />
+        </header>
+        <div className="App-body">
+          <Route exact path="/" component={List} />
+          <Route path="/list" component={List} />
+          <Route path="/upload" component={Upload} />
+          <Route path="/annotate" component={Annotate} />
+        </div>
+      </Router>
+
+
     </div>
   );
 }
