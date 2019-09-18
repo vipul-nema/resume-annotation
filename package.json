@@ -62,9 +62,11 @@
     "workbox-webpack-plugin": "4.3.1"
   },
   "scripts": {
+    "nodemon": "nodemon --watch src --exec  node server.js",
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "server": "node server.js"
   },
   "eslintConfig": {
     "extends": "react-app"

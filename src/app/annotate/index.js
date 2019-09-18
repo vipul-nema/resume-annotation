@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-
-let annotatedNodeJson = {
+import './annotate.scss';
+let annotatedTagJson = {
     name_100_30: {
         top: 100,
         left: 30,
@@ -21,8 +21,10 @@ let annotatedNodeJson = {
     }
 };
 
-class AnnotationClass {
-    constructor(name) {
+class Annotate extends Component {
+
+    constructor(params) {
+        super(params);
         this.tagOptions = [
             {
                 name: 'name',
@@ -45,24 +47,29 @@ class AnnotationClass {
                 backgroundColor: 'aqua'
             }
         ];
-        this.initialize();
+
+        this.state = {
+            currentTagOption: this.tagOptions[0],
+            annotatedTagJson: { ...annotatedTagJson }
+        }
+        this.iframeRef = React.createRef();
     }
 
-    initialize() {
-        //Event binding on iframe
-        this.currentTagOption = this.tagOptions[0];
+    componentDidMount() {
 
-        window.getSelection().addRange(new Range());
+    }
+    initialize = () => {
+        // node.designMode = "on";
+        // node.body.contentEditable = true;
+
+    }
+
+    handleIframeLoad = (event) => {
+        // window.getSelection().addRange(new Range());
+        // console.log('iframeRef', this.iframeRef)
         let iframe_annotation = document.getElementById('iframe_annotation');
-
-        var fragment = document.createElement('div');
-        fragment.className = 'annotatedNodeElm';
-        document.querySelector('.middle-section').appendChild(fragment);
-        this.annotatedNodeElm = document.querySelector('.annotatedNodeElm');
-
-
         // iframe_annotation.addEventListener('onmousedown', getStartPosition);
-        this.iframeDocument = iframe_annotation.document ||
+        this.iframeDocument = this.iframeRef.document ||
             iframe_annotation.contentDocument ||
             iframe_annotation.contentWindow.document;
 
@@ -73,30 +80,20 @@ class AnnotationClass {
 
         this.assignUniqueAttribue(this.iframeDocument);
 
-        // node.designMode = "on";
-        // node.body.contentEditable = true;
-
-        this.updateAnnotationNode();
-        this.updateSelectOptions();
-
-
     }
-    assignUniqueAttribue(node) {
+    assignUniqueAttribue = (node) => {
         var elements = node.querySelectorAll('body *');
         let elementsLength = elements.length;
         for (let i = 0; i < elementsLength; i++) {
             elements[i].setAttribute('data-ann-id', this.getUniqueID() + '-' + i)
         }
-
     }
-
-
 
     getStartPosition(event) {
         // startPos = getXYRelativeToWindow(event.currentTarget);
     }
 
-    getEndPosition(event) {
+    getEndPosition = (event) => {
         var range;
 
         let node = this.iframeDocument;
@@ -132,14 +129,14 @@ class AnnotationClass {
                     top: firstRect.top,
                     left: firstRect.left,
                     value: childHtml,
-                    tag: this.currentTagOption.name,
+                    tag: this.state.currentTagOption.name,
                     start,
                     end,
-                    backgroundColor: this.currentTagOption.backgroundColor
+                    backgroundColor: this.state.currentTagOption.backgroundColor
 
                 });
 
-                this.updateAnnotationNode()
+                // this.updateAnnotationNode()
 
                 return div.innerHTML;
             }
@@ -147,7 +144,7 @@ class AnnotationClass {
 
     }
 
-    getChildHtml(childHtml) {
+    getChildHtml = (childHtml) => {
 
         //Add all openig tags data
         while (childHtml.indexOf('<') === 0) {
@@ -162,7 +159,7 @@ class AnnotationClass {
         return childHtml;
     }
 
-    getSelectedNodeIndex(parentHtml, selectedItem, range, selection, event) {
+    getSelectedNodeIndex = (parentHtml, selectedItem, range, selection, event) => {
         console.log('range', range, selection);
         if (selectedItem.includes('<') && selectedItem.includes('>')) {
             return parentHtml.indexOf(selectedItem);
@@ -180,9 +177,9 @@ class AnnotationClass {
     }
 
 
-    updateAnnotateConfig(config) {
-
-        annotatedNodeJson[`${config.tag}_${config.top}_${config.left}`] = {
+    updateAnnotateConfig = (config) => {
+        let annotatedTagJson = { ...this.state.annotatedTagJson };
+        annotatedTagJson[`${config.tag}_${config.top}_${config.left}`] = {
             top: config.top,
             left: config.left,
             tag: config.tag,
@@ -191,39 +188,38 @@ class AnnotationClass {
             end: config.end,
             backgroundColor: config.backgroundColor
         };
-        return;
-
+        this.setState({
+            annotatedTagJson
+        });
     }
 
-    createNode(config) {
-        let { top, left, value, tag, backgroundColor } = config;
-        let annotatedChild = document.createElement('span');
-        annotatedChild.className = 'annotatedChild';
+    createNode = () => {
+        let { annotatedTagJson } = this.state;
+        let output = [];
+        return Object.keys(annotatedTagJson).map((prop, index) => {
+            const config = annotatedTagJson[prop];
+            let { top, left, value, tag, backgroundColor } = config;
+            let style = {
+                position: 'absolute',
+                top: (top - 30) + 'px',
+                left: (left - 20) + 'px',
+                'zIndex': 9000,
+                'backgroundColor': backgroundColor || '#fffff',
+                height: '10px',
+                'padding': '10px',
+                width: '100px',
+                'border': '4px',
+                'overflow': 'hidden',
+                'textOverflow': 'ellipsis'
+            };
+            return (<span key={prop} className="annotatedChild" style={style}>{tag} </span>)
+        })
 
-        let style = {
-            position: 'absolute',
-            top: (top - 30) + 'px',
-            left: (left - 20) + 'px',
-            'z-index': 9000,
-            'background-color': backgroundColor || '#fffff',
-            height: '10px',
-            'padding': '10px',
-            width: '100px',
-            'border': '4px',
-            'overflow': 'hidden',
-            'text-overflow': 'ellipsis'
-        };
-
-        for (let prop in style) {
-            annotatedChild.style[prop] = style[prop];
-        }
-        annotatedChild.innerText = tag;
-        return annotatedChild;
     }
 
 
     //...............
-    getUniqueID() {
+    getUniqueID = () => {
         // Math.random should be unique because of its seeding algorithm.
         // Convert it to base 36 (numbers + letters), and grab the first 9 characters
         // after the decimal.
@@ -231,107 +227,90 @@ class AnnotationClass {
     };
 
 
-
-    updateAnnotationNode() {
-        this.annotatedNodeElm.innerHTML = null;
-        document.querySelector('.right-section').innerHTML = null;
-        for (let prop in annotatedNodeJson) {
-            if (annotatedNodeJson.hasOwnProperty) {
-                let config = annotatedNodeJson[prop];
-                let annotatedChild = this.createNode(config);
-                let selectedItem = this.getSelectedItem(config);
-                this.annotatedNodeElm.appendChild(annotatedChild)
-                document.querySelector('.right-section').appendChild(selectedItem)
-            }
-        }
-
-    }
-
-    getSelectedItem(config) {
-        let div = document.createElement('div');
-        // <div>
-        //     p  - tag
-        //     p - value
-        let tagName = document.createElement('p');
-        tagName.innerText = `Tag - ${config.tag}`;
-        div.appendChild(tagName);
-
-        let tagValue = document.createElement('p');
-        tagValue.innerText = `[${config.start} - ${config.end}] => ${config.value}`;
-        tagValue.style.color = '#ca2424'
-        div.appendChild(tagValue);
-        return div;
-    }
-
-    updateSelectOptions() {
-        const selectAnntElm = document.getElementById('select-annt-tag');
-        selectAnntElm.addEventListener('change', this.handleTagChange.bind(this))
-
-        let optionsElm = [];
-        this.tagOptions.forEach((option, index) => {
-            let optionElm = document.createElement('option');
-            optionElm.innerText = option.value;
-            optionElm.setAttribute('value', option.name)
-            optionElm.className = "select-annt-option";
-            optionElm.style.backgroundColor = option.backgroundColor;
-            optionElm.style.color = '#fffff';
-
-            selectAnntElm.appendChild(optionElm)
+    getSelectedItem = (config) => {
+        let { annotatedTagJson } = this.state;
+        return Object.keys(annotatedTagJson).map((prop) => {
+            let config = annotatedTagJson[prop];
+            return (<div className="select-item">
+                <p> Tag - {config.tag}</p>
+                <p>[{config.start} - {config.end}] => {config.value}</p>
+            </div>)
         });
     }
-    handleTagChange(event) {
-        debugger;
-        this.tagName = event.target.value;
 
-        this.currentTagOption = this.tagOptions.filter((tagOption) => {
-            if (tagOption.name == this.tagName) {
+    getSelectOptions = () => {
+        return <select
+            id="select-annt-tag"
+            value={this.state.currentTagOption.name}
+            onChange={this.handleTagChange} >
+            {this.tagOptions.map((tagOption, index) => {
+                let style = {
+                    backgroundColor: tagOption.backgroundColor,
+                }
+                return <option
+                    key={tagOption.name}
+                    className="select-annt-option"
+                    value={tagOption.name} style={style} >{tagOption.value}
+                </option>
+            })}
+        </select>
+
+
+    }
+    handleTagChange = (event) => {
+        let target = event.target;
+
+        let currentTagOption = this.tagOptions.filter((tagOption) => {
+            if (tagOption.name == target.value) {
                 return true;
             }
         })[0];
 
-    }
-}
+        this.setState({
+            currentTagOption
+        });
 
-class Annotate extends Component {
-
-    componentDidMount() {
-        var annotatedObj = new AnnotationClass();
     }
 
     render() {
+
+        const { history, match } = this.props;
+        let { htmlFileName } = match.params;
+        let iframeUrl = `${window.location.origin}/htmlFiles/${htmlFileName}`
         return (
-            <div className="container">
-                <div className="left-section inlblc">
-                    <div className="top-section">
-                        <p>
-                            <b>HTML TAG ANNOTATION</b>
-                        </p>
-                        <label>
-                            <b>Select Tag-</b>
-                        </label>
-                        <select id="select-annt-tag">
-
-                        </select>
-
-                    </div>
+            <div className="annotation-section">
+                <div className="left-section">
                     <div className="middle-section-container">
 
                         <div className="middle-section">
 
-                            <iframe id="iframe_annotation" title="iframe Example 2" width="400" height="300" style={{ "border": "none" }} src="./annotation.html">
+                            <iframe ref={this.iframeRef} id="iframe_annotation" title="iframe Example 2" style={{ "border": "none" }} src={iframeUrl} onLoad={this.handleIframeLoad}>
                             </iframe>
+                            <div className="annotatedNodeElm">
 
+                                {this.createNode()}
+                            </div>
 
                         </div>
 
                     </div>
-
-                    <div className="bottom-section">
-                        Bottom section
-            </div>
                 </div>
-                <div className="right-section inlblc">
+                <div className="right-section">
+                    <div className="select-section">
+                        <label>
+                            <b>Annotation</b>
+                            {this.getSelectOptions()}
 
+                        </label>
+                        <div className="selectedValue">
+                            Some value
+                         </div>
+
+
+                    </div>
+                    <div className="select-items">
+                        {this.getSelectedItem()}
+                    </div>
                 </div>
             </div>
         );

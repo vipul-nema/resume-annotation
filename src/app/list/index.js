@@ -2,17 +2,17 @@ import React, { Component } from 'react';
 import './list.scss';
 var annotatedHtmlList = [
     {
-        fileName: '1_file1',
+        fileName: 'annotation1',
 
     },
     {
-        fileName: '1_file1'
+        fileName: 'annotation2'
     },
     {
-        fileName: '1_file1'
+        fileName: 'annotation3'
     },
     {
-        fileName: '1_file1'
+        fileName: 'annotation4'
     },
     {
         fileName: '1_file1'
@@ -144,8 +144,10 @@ class List extends Component {
         }
     }
 
-    handleAnnotate = (event) => {
+    handleAnnotate = (fileName, event) => {
         event.preventDefault();
+        const { history } = this.props;
+        history.push(`annotate/${fileName}`);
     }
 
     handleDownloadCsv = (event) => {
@@ -179,7 +181,7 @@ class List extends Component {
                                     <span> File Name - {fileName}</span>
                                 </div>
                                 <div className="listActions">
-                                    <div className="divBtn" onClick={this.handleAnnotate}> Annotate </div>
+                                    <div className="divBtn" onClick={this.handleAnnotate.bind(this, fileName)}> Annotate </div>
 
                                 </div>
                             </div>)

@@ -21,6 +21,13 @@
             align-items: center;
             justify-content: right;
             margin-left: 100px;
+            width: 300px;
+        }
+
+        .fileDetails {
+            width: 300px;
+            display: flex;
+            padding-left: 20px;
         }
     }
 }

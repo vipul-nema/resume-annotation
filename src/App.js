@@ -18,7 +18,7 @@ function App() {
           <Route exact path="/" component={List} />
           <Route path="/list" component={List} />
           <Route path="/upload" component={Upload} />
-          <Route path="/annotate" component={Annotate} />
+          <Route path="/annotate/:htmlFileName" exact={false} component={Annotate} />
         </div>
       </Router>
 
