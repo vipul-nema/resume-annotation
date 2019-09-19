@@ -1,24 +1,25 @@
 import React, { Component } from 'react';
 import './annotate.scss';
+import { urlConfig } from '../urlConfig';
 let annotatedTagJson = {
-    name_100_30: {
-        top: 100,
-        left: 30,
-        tag: 'name',
-        value: '<span>Ravi</span>',
-        start: 50, //Start index
-        end: 67, //End index,
-        backgroundColor: 'blue'
-    },
-    email_200_50: {
-        top: 200,
-        left: 50,
-        tag: 'email',
-        value: 'vipul@naukri.com',
-        start: 20,
-        end: 36,
-        backgroundColor: 'green'
-    }
+    // name_100_30: {
+    //     top: 100,
+    //     left: 30,
+    //     tag: 'name',
+    //     value: '<span>Ravi</span>',
+    //     start: 50, //Start index
+    //     end: 67, //End index,
+    //     backgroundColor: 'blue'
+    // },
+    // email_200_50: {
+    //     top: 200,
+    //     left: 50,
+    //     tag: 'email',
+    //     value: 'vipul@naukri.com',
+    //     start: 20,
+    //     end: 36,
+    //     backgroundColor: 'green'
+    // }
 };
 
 class Annotate extends Component {
@@ -26,6 +27,11 @@ class Annotate extends Component {
     constructor(params) {
         super(params);
         this.tagOptions = [
+            {
+                name: 'select',
+                value: "Select",
+                backgroundColor: 'blue'
+            },
             {
                 name: 'name',
                 value: "Name",
@@ -48,9 +54,17 @@ class Annotate extends Component {
             }
         ];
 
+        const { history, match } = this.props;
+        let { htmlFileName } = match.params;
+        this.htmlFileName = htmlFileName;
+
         this.state = {
             currentTagOption: this.tagOptions[0],
-            annotatedTagJson: { ...annotatedTagJson }
+            annotatedTagJson: { ...annotatedTagJson },
+            highlightTag: {},
+            isShowSelectedItems: false,
+            currentRange: {}
+
         }
         this.iframeRef = React.createRef();
     }
@@ -106,6 +120,8 @@ class Annotate extends Component {
                 let clonedSelection = range.cloneContents();
                 //get clientRect position of selected node or characters
                 let clientRects = range.getClientRects();
+                let boundingClientRect = range.getBoundingClientRect();
+                console.log("clientRects", clientRects, boundingClientRect);
                 let firstRect = clientRects[0];
                 let lastRect = clientRects[0];
 
@@ -122,26 +138,47 @@ class Annotate extends Component {
                 var start = this.getSelectedNodeIndex(parentHtml, childHtml, range, selection, event);
                 var end = start + childHtml.length;
 
-                // console.log('gggggggggggg', start, end, parentHtml)
-
-
-                this.updateAnnotateConfig({
-                    top: firstRect.top,
-                    left: firstRect.left,
-                    value: childHtml,
-                    tag: this.state.currentTagOption.name,
-                    start,
-                    end,
-                    backgroundColor: this.state.currentTagOption.backgroundColor
-
+                this.setState({
+                    currentRange: {
+                        top: firstRect.top,
+                        left: firstRect.left,
+                        value: childHtml,
+                        tag: this.state.currentTagOption.name,
+                        start,
+                        end,
+                        clientRects,
+                        text: range.toString()
+                    }
                 });
+                // this.updateAnnotateConfig({
 
-                // this.updateAnnotationNode()
+                // });
 
                 return div.innerHTML;
             }
         }
+    }
+    highLight = (config) => {
+        let { clientRects } = config;
+        // let boundingClientRect = range.getBoundingClientRect();
+        let clientRectsLength = Object.keys(clientRects).length;
 
+        var clientRectHighLighter = [];
+        for (let prop in clientRects) {
+            let clientRect = clientRects[prop];
+            let style = {
+                top: `${clientRect.top}px`,
+                left: `${clientRect.left}px`,
+                height: `${clientRect.height}px`,
+                width: `${clientRect.width}px`
+            }
+            clientRectHighLighter.push(<span className="highLighter" style={style}></span>);
+            if (prop === 0 || prop === clientRectsLength - 1) {
+                clientRectHighLighter.push(<span className="highLighter" style={style}></span>);
+            }
+        }
+
+        return <div className="highLighterDiv"> {clientRectHighLighter} </div>
     }
 
     getChildHtml = (childHtml) => {
@@ -177,44 +214,34 @@ class Annotate extends Component {
     }
 
 
-    updateAnnotateConfig = (config) => {
-        let annotatedTagJson = { ...this.state.annotatedTagJson };
-        annotatedTagJson[`${config.tag}_${config.top}_${config.left}`] = {
-            top: config.top,
-            left: config.left,
-            tag: config.tag,
-            value: config.value,
-            start: config.start,
-            end: config.end,
-            backgroundColor: config.backgroundColor
+    getAnnotateTagConfig = () => {
+        const { currentRange, currentTagOption } = this.state;
+        let currentRangeConfig = {};
+        currentRangeConfig[`${currentRange.tag}_${currentRange.top}_${currentRange.left}`] = {
+            ...currentRange,
+            top: currentRange.top,
+            left: currentRange.left,
+            tag: currentTagOption.name,// currentTag
+            value: currentRange.value,
+            start: currentRange.start,
+            end: currentRange.end,
         };
-        this.setState({
-            annotatedTagJson
-        });
+        return currentRangeConfig;
     }
 
     createNode = () => {
-        let { annotatedTagJson } = this.state;
+        let { annotatedTagJson, highlightTag } = this.state;
         let output = [];
-        return Object.keys(annotatedTagJson).map((prop, index) => {
-            const config = annotatedTagJson[prop];
-            let { top, left, value, tag, backgroundColor } = config;
-            let style = {
-                position: 'absolute',
-                top: (top - 30) + 'px',
-                left: (left - 20) + 'px',
-                'zIndex': 9000,
-                'backgroundColor': backgroundColor || '#fffff',
-                height: '10px',
-                'padding': '10px',
-                width: '100px',
-                'border': '4px',
-                'overflow': 'hidden',
-                'textOverflow': 'ellipsis'
-            };
-            return (<span key={prop} className="annotatedChild" style={style}>{tag} </span>)
-        })
+        // Object.keys(annotatedTagJson)
+        debugger;
+        return Object.keys(highlightTag).map((tagId, index) => {
+            const config = annotatedTagJson[tagId];
+            if (config) {
+                return this.highLight(config);
+            }
+            return null;
 
+        });
     }
 
 
@@ -225,17 +252,55 @@ class Annotate extends Component {
         // after the decimal.
         return '_' + Math.random().toString(36).substr(2, 9);
     };
+    handleHighlight = (tagId) => {
+        let { annotatedTagJson, highlightTag } = this.state;
+        let newHighlightTag = {};
+        //If already hightlighted, remove
+        if (highlightTag[tagId]) {
+            delete newHighlightTag[tagId];
+        } else {
+            //If not hightlighted then highlight
+            newHighlightTag = { ...highlightTag, [tagId]: annotatedTagJson[tagId] }
+        }
 
+        this.setState({
+            highlightTag: newHighlightTag
+        });
+    }
+    handleDeleteTag = (tagId) => {
+        let { annotatedTagJson, highlightTag } = this.state;
+
+        let newAnnotatedTagJson = { ...annotatedTagJson };
+        delete newAnnotatedTagJson[tagId];
+        let newHighlightTag = { ...highlightTag };
+        delete newHighlightTag[tagId];
+
+        //........
+        this.setState({
+            annotatedTagJson: newAnnotatedTagJson,
+            highlightTag: newHighlightTag
+        });
+    }
 
     getSelectedItem = (config) => {
         let { annotatedTagJson } = this.state;
-        return Object.keys(annotatedTagJson).map((prop) => {
-            let config = annotatedTagJson[prop];
-            return (<div className="select-item">
-                <p> Tag - {config.tag}</p>
-                <p>[{config.start} - {config.end}] => {config.value}</p>
-            </div>)
-        });
+
+        return <div>
+            <div className="divBtn" onClick={this.handleShowSelectdItem.bind(this, false)}> Hide </div>
+            {Object.keys(annotatedTagJson).map((prop) => {
+                let config = annotatedTagJson[prop];
+                return (
+                    <div className="tagItemDetails">
+                        <div className="tagItem">Tag - {config.tag}
+                            <div className="divBtn" onClick={() => this.handleHighlight(prop)}>Highlight</div>
+                            <div className="divBtn" onClick={() => this.handleDeleteTag(prop)}>Delete</div>
+                        </div>
+                        <p className="tagItem">Index - [{config.start} - {config.end}] </p>
+                        <p className="tagItem">Html - {config.value}</p>
+                        <p className="tagItem">TEXT - {config.text}</p>
+                    </div>)
+            }).reverse()}
+        </div>
     }
 
     getSelectOptions = () => {
@@ -272,10 +337,68 @@ class Annotate extends Component {
 
     }
 
-    render() {
+    handleShowSelectdItem = (isShowSelectedItems) => {
+        let { highlightTag } = this.state;
+        let newHighlightTag = { ...highlightTag };
+        if (!isShowSelectedItems) {
+            newHighlightTag = {};
+        }
+        this.setState({
+            highlightTag: newHighlightTag,
+            isShowSelectedItems
+        });
+    }
 
-        const { history, match } = this.props;
-        let { htmlFileName } = match.params;
+    handleSaveAnnotation = () => {
+        let { currentRange, annotatedTagJson, currentTagOption } = this.state;
+
+        if (currentTagOption.name === 'select' || (currentRange.text && currentRange.text.length === 0)) {
+            this.setState({
+                'error': 'Select Value'
+            });
+            return;
+        } else {
+            let newAnnotatedTagJson = { ...annotatedTagJson, ...this.getAnnotateTagConfig() }
+            debugger;
+            this.setState({
+                annotatedTagJson: newAnnotatedTagJson,
+                currentRange: {},
+                currentTagOption: this.tagOptions[0],
+                error: null
+            });
+        }
+
+    }
+
+    handleSubmit = () => {
+        const { annotatedTagJson } = this.state;
+        // an array consisting of a single DOMString
+        var oMyBlob = new Blob([this.iframeDocument.body.parentNode.outerHTML], { type: 'text/html' });
+
+        var data = new FormData();
+        data.append('file', oMyBlob.slice(), this.fileName);
+        data.append('json', JSON.stringify(annotatedTagJson));
+        debugger;
+
+        let url = 'http://localhost:5000/save'// urlConfig.save;
+        let reqObj = {
+            mode: 'no-cors',
+            cache: 'no-cache',
+            method: 'POST',
+            body: data
+        };
+
+        fetch(url, reqObj).then((response) => {
+            console.log("response", response);
+            // history.push('./list');
+        }).catch((error) => {
+            debugger;
+            console.log('error', error);
+        });
+    }
+    render() {
+        const { isShowSelectedItems, currentRange, error } = this.state;
+        const htmlFileName = this.htmlFileName;
         let iframeUrl = `${window.location.origin}/htmlFiles/${htmlFileName}`
         return (
             <div className="annotation-section">
@@ -287,7 +410,6 @@ class Annotate extends Component {
                             <iframe ref={this.iframeRef} id="iframe_annotation" title="iframe Example 2" style={{ "border": "none" }} src={iframeUrl} onLoad={this.handleIframeLoad}>
                             </iframe>
                             <div className="annotatedNodeElm">
-
                                 {this.createNode()}
                             </div>
 
@@ -303,14 +425,24 @@ class Annotate extends Component {
 
                         </label>
                         <div className="selectedValue">
-                            Some value
-                         </div>
+                            {currentRange.text}
+                        </div>
+                        {error && <p className="error"> {error}</p>}
+                        <div className="divBtn" onClick={this.handleSaveAnnotation}>Save </div>
+
+
 
 
                     </div>
-                    <div className="select-items">
-                        {this.getSelectedItem()}
-                    </div>
+
+                    <div className="divBtn" onClick={this.handleShowSelectdItem.bind(this, true)}>Show Selected Items </div>
+
+                    <div className="divBtn" onClick={this.handleSubmit}>Submit </div>
+
+                    {isShowSelectedItems &&
+                        <div className="select-items">
+                            {this.getSelectedItem()}
+                        </div>}
                 </div>
             </div>
         );

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import './upload.scss';
+import { urlConfig } from '../urlConfig';
 
 class Upload extends Component {
 
@@ -11,26 +12,28 @@ class Upload extends Component {
 
     handleSubmit = (history, event) => {
         event.preventDefault();
-        // debugger;
-        // console.log(
-        //     `Selected file - ${
-        //     this.fileInput.current.files[0].name
-        //     }`, this.fileInput
-        // );
 
         var data = new FormData();
         var files = this.fileInput.current.files;
+        debugger;
         for (const file of files) {
-            data.append('files', file, file.name)
+            data.append('files', file)
         }
-
-        fetch('/upload-file', {
+        let url = urlConfig.uploadMultipleFiles;
+        let reqObj = {
+            mode: 'no-cors',
+            cache: 'no-cache',
             method: 'POST',
             body: data
+        };
+
+        fetch(url, reqObj).then((response) => {
+            console.log("response", response);
+            history.push('./list');
+        }).catch((error) => {
+            debugger;
+            console.log('error', error);
         });
-
-        history.push('./list');
-
     }
 
 

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './list.scss';
+import { urlConfig } from '../urlConfig';
 var annotatedHtmlList = [
     {
         fileName: 'annotation1',
@@ -140,8 +141,38 @@ class List extends Component {
     constructor(params) {
         super(params);
         this.state = {
+            annotatedHtmlList: [],
             selectedItems: {}
         }
+    }
+
+    componentDidMount() {
+
+        let url = urlConfig.list;
+        let reqObj = {
+            mode: 'cors',
+            cache: 'no-cache',
+            // credentials: 'include',
+            method: 'GET',
+        };
+        // url = 'http://dummy.restapiexample.com/api/v1/employees';
+        fetch(url, reqObj).then((response) => {
+            // if (response.ok) {
+            //     return response.json();
+
+            // }
+            // return;
+            return response.json();
+
+        }).then((res) => {
+            console.log(res);
+            this.setState({
+                annotatedHtmlList: res || []
+            });
+        }).catch((error) => {
+            debugger;
+            console.log('error', error);
+        });
     }
 
     handleAnnotate = (fileName, event) => {
@@ -164,6 +195,7 @@ class List extends Component {
     }
 
     render() {
+        const { annotatedHtmlList } = this.state;
         return (
             <div className="annotatedHtmlListSection">
                 <div className="bulkActions">
@@ -171,8 +203,8 @@ class List extends Component {
                     <div className="divBtn" onClick={this.handleDownloadHtml}> Download HTML </div>
                 </div>
                 <div className="annotatedHtmlList">
-                    {annotatedHtmlList.map((annotatedHtml, index) => {
-                        let { fileName } = annotatedHtml;
+                    {annotatedHtmlList.map((fileName, index) => {
+                        {/* let { fileName } = annotatedHtml; */ }
                         return (
                             <div className="annotatedHtmlItem" key={fileName + index}>
 
