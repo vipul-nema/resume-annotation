@@ -181,12 +181,14 @@ class List extends Component {
         history.push(`annotate/${fileName}`);
     }
 
-    handleDownloadCsv = (event) => {
+    handleDownloadCsv = (fileName, event) => {
         event.preventDefault();
+        window.open(`${urlConfig.downloadCSV}/${fileName}`);
     }
 
-    handleDownloadHtml = (event) => {
+    handleDownloadHtml = (fileName, event) => {
         event.preventDefault();
+        window.open(`${urlConfig.downloadFile}/${fileName}`);
     }
 
     handleCheckBox = (event) => {
@@ -214,6 +216,8 @@ class List extends Component {
                                 </div>
                                 <div className="listActions">
                                     <div className="divBtn" onClick={this.handleAnnotate.bind(this, fileName)}> Annotate </div>
+                                    <div className="divBtn" onClick={this.handleDownloadCsv.bind(this, fileName)}> Download Csv </div>
+                                    <div className="divBtn" onClick={this.handleDownloadHtml.bind(this, fileName)}> Download HTML </div>
 
                                 </div>
                             </div>)

@@ -15,23 +15,23 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'build')));
 
 app.get('/htmlFiles/:htmlFileName', function (req, res) {
-    // console.log('/htmlFiles/:htmlFileName', req.params);
-    // let url = `${origin}/getFile/${req.params.htmlFileName}`;
-    // console.log('url', url);
-    // request.get(url).pipe(res);
+    console.log('/htmlFiles/:htmlFileName', req.params);
+    let url = `${origin}/getFile/${req.params.htmlFileName}`;
+    console.log('url', url);
+    request.get(url).pipe(res);
 
-    res.sendFile(path.join(__dirname, 'htmlFilesAnnt', `${req.params.htmlFileName}.html`));
-});
-
-app.post('/save', upload.none(), function (req, res) {
-    // let url = `${origin}/getFile/${req.params.htmlFileName}`;
-    // console.log('url', url);
-    // request.get(url).pipe(res);
-    const formData = req.body;
-    console.log('form data', formData);
-    res.send('Got a POST request')
     // res.sendFile(path.join(__dirname, 'htmlFilesAnnt', `${req.params.htmlFileName}.html`));
 });
+
+// app.post('/save', upload.none(), function (req, res) {
+//     // let url = `${origin}/getFile/${req.params.htmlFileName}`;
+//     // console.log('url', url);
+//     // request.get(url).pipe(res);
+//     const formData = req.body;
+//     console.log('form data', formData);
+//     res.send('Got a POST request')
+//     // res.sendFile(path.join(__dirname, 'htmlFilesAnnt', `${req.params.htmlFileName}.html`));
+// });
 
 app.get('/*', function (req, res) {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));

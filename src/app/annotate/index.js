@@ -92,14 +92,19 @@ class Annotate extends Component {
 
         this.iframeDocument.body.addEventListener('mouseup', this.getEndPosition.bind(this));
 
-        this.assignUniqueAttribue(this.iframeDocument);
+        //Assign id if not present
+        if (!this.iframeDocument.querySelector("[data-annotate]")) {
+            this.assignUniqueAttribue(this.iframeDocument);
+        }
+
 
     }
     assignUniqueAttribue = (node) => {
         var elements = node.querySelectorAll('body *');
+        debugger;
         let elementsLength = elements.length;
         for (let i = 0; i < elementsLength; i++) {
-            elements[i].setAttribute('data-ann-id', this.getUniqueID() + '-' + i)
+            elements[i].setAttribute('data-annotate', this.getUniqueID())
         }
     }
 
@@ -371,16 +376,18 @@ class Annotate extends Component {
     }
 
     handleSubmit = () => {
+        const { history } = this.props;
         const { annotatedTagJson } = this.state;
         // an array consisting of a single DOMString
         var oMyBlob = new Blob([this.iframeDocument.body.parentNode.outerHTML], { type: 'text/html' });
-
         var data = new FormData();
-        data.append('file', oMyBlob.slice(), this.fileName);
+        let file = new File([oMyBlob], this.htmlFileName, { lastModifiedDate: new Date });
+        data.append('file', file, this.htmlFileName);
         data.append('json', JSON.stringify(annotatedTagJson));
+        data.append('regexToBeRemoved', "data-annotate:(\\d{10})");
         debugger;
 
-        let url = 'http://localhost:5000/save'// urlConfig.save;
+        let url = urlConfig.save;
         let reqObj = {
             mode: 'no-cors',
             cache: 'no-cache',
@@ -390,7 +397,7 @@ class Annotate extends Component {
 
         fetch(url, reqObj).then((response) => {
             console.log("response", response);
-            // history.push('./list');
+            history.push('./list');
         }).catch((error) => {
             debugger;
             console.log('error', error);
