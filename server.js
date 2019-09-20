@@ -7,7 +7,7 @@ var multer = require("multer");
 var upload = multer();
 
 const request = require("request");
-const origin = 'http://127.0.0.1:8080';
+const origin = 'http://192.168.40.59:8080';
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(upload.array());
