@@ -1,27 +1,17 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { NavLink } from 'react-router-dom';
 
-class Header extends Component {
+class Header extends PureComponent {
     render() {
         return (
             <>
                 <NavLink className="app-nav-link"
                     to="/upload"
-                    activeStyle={{
-                        fontWeight: "bold",
-                        color: "red"
-                    }}
-                >
-                    Upload
+                > Upload
           </NavLink>
                 <NavLink className="app-nav-link"
                     to="/list"
-                    activeStyle={{
-                        fontWeight: "bold",
-                        color: "red"
-                    }}
-                >
-                    List
+                >List
           </NavLink>
 
             </>
