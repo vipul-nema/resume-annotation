@@ -1,459 +1,450 @@
-import React, { Component } from 'react';
-import './annotate.scss';
-import { urlConfig } from '../urlConfig';
+import React, { Component } from "react";
+import "./annotate.scss";
+import { urlConfig } from "../urlConfig";
 let annotatedTagJson = {
-    // name_100_30: {
-    //     top: 100,
-    //     left: 30,
-    //     tag: 'name',
-    //     value: '<span>Ravi</span>',
-    //     start: 50, //Start index
-    //     end: 67, //End index,
-    //     backgroundColor: 'blue'
-    // },
-    // email_200_50: {
-    //     top: 200,
-    //     left: 50,
-    //     tag: 'email',
-    //     value: 'vipul@naukri.com',
-    //     start: 20,
-    //     end: 36,
-    //     backgroundColor: 'green'
-    // }
+  // name_100_30: {
+  //     top: 100,
+  //     left: 30,
+  //     tag: 'name',
+  //     value: '<span>Ravi</span>',
+  //     start: 50, //Start index
+  //     end: 67, //End index,
+  //     backgroundColor: 'blue'
+  // },
+  // email_200_50: {
+  //     top: 200,
+  //     left: 50,
+  //     tag: 'email',
+  //     value: 'vipul@naukri.com',
+  //     start: 20,
+  //     end: 36,
+  //     backgroundColor: 'green'
+  // }
 };
 
 class Annotate extends Component {
+  constructor(params) {
+    super(params);
+    this.tagOptions = [
+      {
+        name: "select",
+        value: "Select",
+        backgroundColor: "blue"
+      },
+      {
+        name: "name",
+        value: "Name",
+        backgroundColor: "blue"
+      },
+      {
+        name: "email",
+        value: "Email",
+        backgroundColor: "green"
+      },
+      {
+        name: "skill",
+        value: "Skill",
+        backgroundColor: "grey"
+      },
+      {
+        name: "company",
+        value: "Company",
+        backgroundColor: "aqua"
+      }
+    ];
 
-    constructor(params) {
-        super(params);
-        this.tagOptions = [
-            {
-                name: 'select',
-                value: "Select",
-                backgroundColor: 'blue'
-            },
-            {
-                name: 'name',
-                value: "Name",
-                backgroundColor: 'blue'
-            },
-            {
-                name: 'email',
-                value: "Email",
-                backgroundColor: 'green'
-            },
-            {
-                name: 'skill',
-                value: "Skill",
-                backgroundColor: 'grey'
-            },
-            {
-                name: 'company',
-                value: "Company",
-                backgroundColor: 'aqua'
-            }
-        ];
+    const { history, match } = this.props;
+    let { htmlFileName } = match.params;
+    this.htmlFileName = htmlFileName;
 
-        const { history, match } = this.props;
-        let { htmlFileName } = match.params;
-        this.htmlFileName = htmlFileName;
-
-        this.state = {
-            currentTagOption: this.tagOptions[0],
-            annotatedTagJson: { ...annotatedTagJson },
-            highlightTag: {},
-            isShowSelectedItems: false,
-            currentRange: {}
-
-        }
-        this.iframeRef = React.createRef();
-    }
-
-    componentDidMount() {
-
-    }
-    initialize = () => {
-        // node.designMode = "on";
-        // node.body.contentEditable = true;
-
-    }
-
-    handleIframeLoad = (event) => {
-        // window.getSelection().addRange(new Range());
-        // console.log('iframeRef', this.iframeRef)
-        let iframe_annotation = document.getElementById('iframe_annotation');
-        // iframe_annotation.addEventListener('onmousedown', getStartPosition);
-        this.iframeDocument = this.iframeRef.document ||
-            iframe_annotation.contentDocument ||
-            iframe_annotation.contentWindow.document;
-
-        //Assign iframe content's height to its child 
-        iframe_annotation.style.height = this.iframeDocument.body.scrollHeight + 100 + 'px';
-
-        this.iframeDocument.body.addEventListener('mouseup', this.getEndPosition.bind(this));
-
-        //Assign id if not present
-        if (!this.iframeDocument.querySelector("[data-annotate]")) {
-            this.assignUniqueAttribue(this.iframeDocument);
-        }
-
-
-    }
-    assignUniqueAttribue = (node) => {
-        var elements = node.querySelectorAll('body *');
-        debugger;
-        let elementsLength = elements.length;
-        for (let i = 0; i < elementsLength; i++) {
-            elements[i].setAttribute('data-annotate', this.getUniqueID())
-        }
-    }
-
-    getStartPosition(event) {
-        // startPos = getXYRelativeToWindow(event.currentTarget);
-    }
-
-    getEndPosition = (event) => {
-        var range;
-
-        let node = this.iframeDocument;
-
-        if (node.getSelection) {
-            let selection = node.getSelection();
-            if (selection.rangeCount > 0) {
-                range = selection.getRangeAt(0);
-
-                let clonedSelection = range.cloneContents();
-                //get clientRect position of selected node or characters
-                let clientRects = range.getClientRects();
-                let boundingClientRect = range.getBoundingClientRect();
-                console.log("clientRects", clientRects, boundingClientRect);
-                let firstRect = clientRects[0];
-                let lastRect = clientRects[0];
-
-                var div = document.createElement('div');
-                div.appendChild(clonedSelection);
-                // node.execCommand('insertHTML', true, `<mark class="ddddd">${div.innerHTML}</mark>`);
-                // console.log('innerHTML', div.innerHTML);
-                if (div.innerHTML.trim().length === 0) {
-                    return;
-                }
-                var childHtml = this.getChildHtml(`${div.innerHTML}`);
-                var parentHtml = `${node.body.parentNode.outerHTML}`;
-                // debugger;
-                var start = this.getSelectedNodeIndex(parentHtml, childHtml, range, selection, event);
-                var end = start + childHtml.length;
-
-                this.setState({
-                    currentRange: {
-                        top: firstRect.top,
-                        left: firstRect.left,
-                        value: childHtml,
-                        tag: this.state.currentTagOption.name,
-                        start,
-                        end,
-                        clientRects,
-                        text: range.toString()
-                    }
-                });
-                // this.updateAnnotateConfig({
-
-                // });
-
-                return div.innerHTML;
-            }
-        }
-    }
-    highLight = (config) => {
-        let { clientRects } = config;
-        // let boundingClientRect = range.getBoundingClientRect();
-        let clientRectsLength = Object.keys(clientRects).length;
-
-        var clientRectHighLighter = [];
-        for (let prop in clientRects) {
-            let clientRect = clientRects[prop];
-            let style = {
-                top: `${clientRect.top}px`,
-                left: `${clientRect.left}px`,
-                height: `${clientRect.height}px`,
-                width: `${clientRect.width}px`
-            }
-            clientRectHighLighter.push(<span className="highLighter" style={style}></span>);
-            if (prop === 0 || prop === clientRectsLength - 1) {
-                clientRectHighLighter.push(<span className="highLighter" style={style}></span>);
-            }
-        }
-
-        return <div className="highLighterDiv"> {clientRectHighLighter} </div>
-    }
-
-    getChildHtml = (childHtml) => {
-
-        //Add all openig tags data
-        while (childHtml.indexOf('<') === 0) {
-            console.log('step 1');
-            childHtml = childHtml.slice(childHtml.indexOf('>') + 1);
-        }
-        //Delete all end tags data
-        while (childHtml.lastIndexOf('>') === childHtml.length - 1) {
-            console.log('step 2');
-            childHtml = childHtml.slice(0, childHtml.lastIndexOf('<'));
-        }
-        return childHtml;
-    }
-
-    getSelectedNodeIndex = (parentHtml, selectedItem, range, selection, event) => {
-        console.log('range', range, selection);
-        if (selectedItem.includes('<') && selectedItem.includes('>')) {
-            return parentHtml.indexOf(selectedItem);
-        } else {
-            let parentElement = range.commonAncestorContainer;
-            while (parentElement.nodeType !== 1) {
-                console.log('step 3');
-                parentElement = parentElement.parentElement;
-            }
-            let commonParentHtml = parentElement.outerHTML;
-            let commonParentHtmlStart = parentHtml.indexOf(commonParentHtml);
-            let selectedItemStart = commonParentHtml.indexOf(selectedItem);
-            return commonParentHtmlStart + selectedItemStart;
-        }
-    }
-
-
-    getAnnotateTagConfig = () => {
-        const { currentRange, currentTagOption } = this.state;
-        let currentRangeConfig = {};
-        currentRangeConfig[`${currentRange.tag}_${currentRange.top}_${currentRange.left}`] = {
-            ...currentRange,
-            top: currentRange.top,
-            left: currentRange.left,
-            tag: currentTagOption.name,// currentTag
-            value: currentRange.value,
-            start: currentRange.start,
-            end: currentRange.end,
-        };
-        return currentRangeConfig;
-    }
-
-    createNode = () => {
-        let { annotatedTagJson, highlightTag } = this.state;
-        let output = [];
-        // Object.keys(annotatedTagJson)
-        debugger;
-        return Object.keys(highlightTag).map((tagId, index) => {
-            const config = annotatedTagJson[tagId];
-            if (config) {
-                return this.highLight(config);
-            }
-            return null;
-
-        });
-    }
-
-
-    //...............
-    getUniqueID = () => {
-        // Math.random should be unique because of its seeding algorithm.
-        // Convert it to base 36 (numbers + letters), and grab the first 9 characters
-        // after the decimal.
-        return '_' + Math.random().toString(36).substr(2, 9);
+    this.state = {
+      currentTagOption: this.tagOptions[0],
+      annotatedTagJson: { ...annotatedTagJson },
+      highlightTag: {},
+      isShowSelectedItems: false,
+      currentRange: {}
     };
-    handleHighlight = (tagId) => {
-        let { annotatedTagJson, highlightTag } = this.state;
-        let newHighlightTag = {};
-        //If already hightlighted, remove
-        if (highlightTag[tagId]) {
-            delete newHighlightTag[tagId];
-        } else {
-            //If not hightlighted then highlight
-            newHighlightTag = { ...highlightTag, [tagId]: annotatedTagJson[tagId] }
+    this.iframeRef = React.createRef();
+  }
+
+  componentDidMount() {}
+  initialize = () => {
+    // node.designMode = "on";
+    // node.body.contentEditable = true;
+  };
+
+  handleIframeLoad = event => {
+    // window.getSelection().addRange(new Range());
+    // console.log('iframeRef', this.iframeRef)
+    let iframe_annotation = document.getElementById("iframe_annotation");
+    // iframe_annotation.addEventListener('onmousedown', getStartPosition);
+    this.iframeDocument = this.iframeRef.document || iframe_annotation.contentDocument || iframe_annotation.contentWindow.document;
+
+    //Assign iframe content's height to its child
+    iframe_annotation.style.height = this.iframeDocument.body.scrollHeight + 100 + "px";
+
+    this.iframeDocument.body.addEventListener("mouseup", this.getEndPosition.bind(this));
+
+    //Assign id if not present
+    if (!this.iframeDocument.querySelector("[data-annotate]")) {
+      this.assignUniqueAttribue(this.iframeDocument);
+    }
+  };
+  assignUniqueAttribue = node => {
+    var elements = node.querySelectorAll("body *");
+    debugger;
+    let elementsLength = elements.length;
+    for (let i = 0; i < elementsLength; i++) {
+      elements[i].setAttribute("data-annotate", this.getUniqueID());
+    }
+  };
+
+  getStartPosition(event) {
+    // startPos = getXYRelativeToWindow(event.currentTarget);
+  }
+
+  getEndPosition = event => {
+    var range;
+
+    let node = this.iframeDocument;
+
+    if (node.getSelection) {
+      let selection = node.getSelection();
+      if (selection.rangeCount > 0) {
+        range = selection.getRangeAt(0);
+
+        let clonedSelection = range.cloneContents();
+        //get clientRect position of selected node or characters
+        let clientRects = range.getClientRects();
+        let boundingClientRect = range.getBoundingClientRect();
+        console.log("clientRects", clientRects, boundingClientRect);
+        let firstRect = clientRects[0];
+        let lastRect = clientRects[0];
+
+        var div = document.createElement("div");
+        div.appendChild(clonedSelection);
+        // node.execCommand('insertHTML', true, `<mark class="ddddd">${div.innerHTML}</mark>`);
+        // console.log('innerHTML', div.innerHTML);
+        if (div.innerHTML.trim().length === 0) {
+          return;
         }
+        var childHtml = this.getChildHtml(`${div.innerHTML}`);
+        var parentHtml = `${node.body.parentNode.outerHTML}`;
+        // debugger;
+        var start = this.getSelectedNodeIndex(parentHtml, childHtml, range, selection, event);
+        var end = start + childHtml.length;
 
         this.setState({
-            highlightTag: newHighlightTag
+          currentRange: {
+            top: firstRect.top,
+            left: firstRect.left,
+            value: childHtml,
+            tag: this.state.currentTagOption.name,
+            start,
+            end,
+            clientRects,
+            text: range.toString()
+          }
         });
+        // this.updateAnnotateConfig({
+
+        // });
+
+        return div.innerHTML;
+      }
     }
-    handleDeleteTag = (tagId) => {
-        let { annotatedTagJson, highlightTag } = this.state;
+  };
+  highLight = config => {
+    let { clientRects } = config;
+    // let boundingClientRect = range.getBoundingClientRect();
+    let clientRectsLength = Object.keys(clientRects).length;
 
-        let newAnnotatedTagJson = { ...annotatedTagJson };
-        delete newAnnotatedTagJson[tagId];
-        let newHighlightTag = { ...highlightTag };
-        delete newHighlightTag[tagId];
-
-        //........
-        this.setState({
-            annotatedTagJson: newAnnotatedTagJson,
-            highlightTag: newHighlightTag
-        });
+    var clientRectHighLighter = [];
+    for (let prop in clientRects) {
+      let clientRect = clientRects[prop];
+      let style = {
+        top: `${clientRect.top}px`,
+        left: `${clientRect.left}px`,
+        height: `${clientRect.height}px`,
+        width: `${clientRect.width}px`
+      };
+      clientRectHighLighter.push(<span className="highLighter" style={style}></span>);
+      if (prop === 0 || prop === clientRectsLength - 1) {
+        clientRectHighLighter.push(<span className="highLighter" style={style}></span>);
+      }
     }
 
-    getSelectedItem = (config) => {
-        let { annotatedTagJson } = this.state;
+    return <div className="highLighterDiv"> {clientRectHighLighter} </div>;
+  };
 
-        return <div>
-            <div className="divBtn" onClick={this.handleShowSelectdItem.bind(this, false)}> Hide </div>
-            {Object.keys(annotatedTagJson).map((prop) => {
-                let config = annotatedTagJson[prop];
-                return (
-                    <div className="tagItemDetails">
-                        <div className="tagItem">Tag - {config.tag}
-                            <div className="divBtn" onClick={() => this.handleHighlight(prop)}>Highlight</div>
-                            <div className="divBtn" onClick={() => this.handleDeleteTag(prop)}>Delete</div>
-                        </div>
-                        <p className="tagItem">Index - [{config.start} - {config.end}] </p>
-                        <p className="tagItem">Html - {config.value}</p>
-                        <p className="tagItem">TEXT - {config.text}</p>
-                    </div>)
-            }).reverse()}
+  getChildHtml = childHtml => {
+    //Add all openig tags data
+    while (childHtml.indexOf("<") === 0) {
+      console.log("step 1");
+      childHtml = childHtml.slice(childHtml.indexOf(">") + 1);
+    }
+    //Delete all end tags data
+    while (childHtml.lastIndexOf(">") === childHtml.length - 1) {
+      console.log("step 2");
+      childHtml = childHtml.slice(0, childHtml.lastIndexOf("<"));
+    }
+    return childHtml;
+  };
+
+  getSelectedNodeIndex = (parentHtml, selectedItem, range, selection, event) => {
+    console.log("range", range, selection);
+    if (selectedItem.includes("<") && selectedItem.includes(">")) {
+      return parentHtml.indexOf(selectedItem);
+    } else {
+      let parentElement = range.commonAncestorContainer;
+      while (parentElement.nodeType !== 1) {
+        console.log("step 3");
+        parentElement = parentElement.parentElement;
+      }
+      let commonParentHtml = parentElement.outerHTML;
+      let commonParentHtmlStart = parentHtml.indexOf(commonParentHtml);
+      let selectedItemStart = commonParentHtml.indexOf(selectedItem);
+      return commonParentHtmlStart + selectedItemStart;
+    }
+  };
+
+  getAnnotateTagConfig = () => {
+    const { currentRange, currentTagOption } = this.state;
+    let currentRangeConfig = {};
+    currentRangeConfig[`${currentRange.tag}_${currentRange.top}_${currentRange.left}`] = {
+      ...currentRange,
+      top: currentRange.top,
+      left: currentRange.left,
+      tag: currentTagOption.name, // currentTag
+      value: currentRange.value,
+      start: currentRange.start,
+      end: currentRange.end
+    };
+    return currentRangeConfig;
+  };
+
+  createNode = () => {
+    let { annotatedTagJson, highlightTag } = this.state;
+    let output = [];
+    // Object.keys(annotatedTagJson)
+    debugger;
+    return Object.keys(highlightTag).map((tagId, index) => {
+      const config = annotatedTagJson[tagId];
+      if (config) {
+        return this.highLight(config);
+      }
+      return null;
+    });
+  };
+
+  //...............
+  getUniqueID = () => {
+    // Math.random should be unique because of its seeding algorithm.
+    // Convert it to base 36 (numbers + letters), and grab the first 9 characters
+    // after the decimal.
+    return (
+      "_" +
+      Math.random()
+        .toString(36)
+        .substr(2, 9)
+    );
+  };
+  handleHighlight = tagId => {
+    let { annotatedTagJson, highlightTag } = this.state;
+    let newHighlightTag = {};
+    //If already hightlighted, remove
+    if (highlightTag[tagId]) {
+      delete newHighlightTag[tagId];
+    } else {
+      //If not hightlighted then highlight
+      newHighlightTag = { ...highlightTag, [tagId]: annotatedTagJson[tagId] };
+    }
+
+    this.setState({
+      highlightTag: newHighlightTag
+    });
+  };
+  handleDeleteTag = tagId => {
+    let { annotatedTagJson, highlightTag } = this.state;
+
+    let newAnnotatedTagJson = { ...annotatedTagJson };
+    delete newAnnotatedTagJson[tagId];
+    let newHighlightTag = { ...highlightTag };
+    delete newHighlightTag[tagId];
+
+    //........
+    this.setState({
+      annotatedTagJson: newAnnotatedTagJson,
+      highlightTag: newHighlightTag
+    });
+  };
+
+  getSelectedItem = config => {
+    let { annotatedTagJson } = this.state;
+
+    return (
+      <div>
+        <div className="divBtn mtb10" onClick={this.handleShowSelectdItem.bind(this, false)}>
+          [X] Hide Container
         </div>
+        {Object.keys(annotatedTagJson)
+          .map(prop => {
+            let config = annotatedTagJson[prop];
+            return (
+              <div className="tagItemDetails">
+                <div class="flex">
+                  <div className="tagItem boxTag boxTagBig">Tag - {config.tag}</div>
+                  <div className="divBtn mlr10 boxTag" onClick={() => this.handleHighlight(prop)}>
+                    Highlight
+                  </div>
+                  <div className="divBtn mlr10 boxTag" onClick={() => this.handleDeleteTag(prop)}>
+                    Delete
+                  </div>
+                </div>
+                <p className="tagItem">
+                  Index - [{config.start} - {config.end}]{" "}
+                </p>
+                <p className="tagItem">Html - {config.value}</p>
+                <p className="tagItem">TEXT - {config.text}</p>
+              </div>
+            );
+          })
+          .reverse()}
+      </div>
+    );
+  };
+
+  getSelectOptions = () => {
+    return (
+      <select id="select-annt-tag" value={this.state.currentTagOption.name} onChange={this.handleTagChange}>
+        {this.tagOptions.map((tagOption, index) => {
+          let style = {
+            backgroundColor: tagOption.backgroundColor
+          };
+          return (
+            <option key={tagOption.name} className="select-annt-option" value={tagOption.name} style={style}>
+              {tagOption.value}
+            </option>
+          );
+        })}
+      </select>
+    );
+  };
+  handleTagChange = event => {
+    let target = event.target;
+
+    let currentTagOption = this.tagOptions.filter(tagOption => {
+      if (tagOption.name == target.value) {
+        return true;
+      }
+    })[0];
+
+    this.setState({
+      currentTagOption
+    });
+  };
+
+  handleShowSelectdItem = isShowSelectedItems => {
+    let { highlightTag } = this.state;
+    let newHighlightTag = { ...highlightTag };
+    if (!isShowSelectedItems) {
+      newHighlightTag = {};
     }
+    this.setState({
+      highlightTag: newHighlightTag,
+      isShowSelectedItems
+    });
+  };
 
-    getSelectOptions = () => {
-        return <select
-            id="select-annt-tag"
-            value={this.state.currentTagOption.name}
-            onChange={this.handleTagChange} >
-            {this.tagOptions.map((tagOption, index) => {
-                let style = {
-                    backgroundColor: tagOption.backgroundColor,
-                }
-                return <option
-                    key={tagOption.name}
-                    className="select-annt-option"
-                    value={tagOption.name} style={style} >{tagOption.value}
-                </option>
-            })}
-        </select>
+  handleSaveAnnotation = () => {
+    let { currentRange, annotatedTagJson, currentTagOption } = this.state;
 
-
+    if (currentTagOption.name === "select" || (currentRange.text && currentRange.text.length === 0)) {
+      this.setState({
+        error: "Select Value"
+      });
+      return;
+    } else {
+      let newAnnotatedTagJson = { ...annotatedTagJson, ...this.getAnnotateTagConfig() };
+      debugger;
+      this.setState({
+        annotatedTagJson: newAnnotatedTagJson,
+        currentRange: {},
+        currentTagOption: this.tagOptions[0],
+        error: null
+      });
     }
-    handleTagChange = (event) => {
-        let target = event.target;
+  };
 
-        let currentTagOption = this.tagOptions.filter((tagOption) => {
-            if (tagOption.name == target.value) {
-                return true;
-            }
-        })[0];
+  handleSubmit = () => {
+    const { history } = this.props;
+    const { annotatedTagJson } = this.state;
+    // an array consisting of a single DOMString
+    var oMyBlob = new Blob([this.iframeDocument.body.parentNode.outerHTML], { type: "text/html" });
+    var data = new FormData();
+    let file = new File([oMyBlob], this.htmlFileName, { lastModifiedDate: new Date() });
+    data.append("file", file, this.htmlFileName);
+    data.append("json", JSON.stringify(annotatedTagJson));
+    data.append("regexToBeRemoved", "data-annotate:(\\d{10})");
+    debugger;
 
-        this.setState({
-            currentTagOption
-        });
+    let url = urlConfig.save;
+    let reqObj = {
+      mode: "no-cors",
+      cache: "no-cache",
+      method: "POST",
+      body: data
+    };
 
-    }
-
-    handleShowSelectdItem = (isShowSelectedItems) => {
-        let { highlightTag } = this.state;
-        let newHighlightTag = { ...highlightTag };
-        if (!isShowSelectedItems) {
-            newHighlightTag = {};
-        }
-        this.setState({
-            highlightTag: newHighlightTag,
-            isShowSelectedItems
-        });
-    }
-
-    handleSaveAnnotation = () => {
-        let { currentRange, annotatedTagJson, currentTagOption } = this.state;
-
-        if (currentTagOption.name === 'select' || (currentRange.text && currentRange.text.length === 0)) {
-            this.setState({
-                'error': 'Select Value'
-            });
-            return;
-        } else {
-            let newAnnotatedTagJson = { ...annotatedTagJson, ...this.getAnnotateTagConfig() }
-            debugger;
-            this.setState({
-                annotatedTagJson: newAnnotatedTagJson,
-                currentRange: {},
-                currentTagOption: this.tagOptions[0],
-                error: null
-            });
-        }
-
-    }
-
-    handleSubmit = () => {
-        const { history } = this.props;
-        const { annotatedTagJson } = this.state;
-        // an array consisting of a single DOMString
-        var oMyBlob = new Blob([this.iframeDocument.body.parentNode.outerHTML], { type: 'text/html' });
-        var data = new FormData();
-        let file = new File([oMyBlob], this.htmlFileName, { lastModifiedDate: new Date });
-        data.append('file', file, this.htmlFileName);
-        data.append('json', JSON.stringify(annotatedTagJson));
-        data.append('regexToBeRemoved', "data-annotate:(\\d{10})");
+    fetch(url, reqObj)
+      .then(response => {
+        console.log("response", response);
+        history.push("./list");
+      })
+      .catch(error => {
         debugger;
-
-        let url = urlConfig.save;
-        let reqObj = {
-            mode: 'no-cors',
-            cache: 'no-cache',
-            method: 'POST',
-            body: data
-        };
-
-        fetch(url, reqObj).then((response) => {
-            console.log("response", response);
-            history.push('./list');
-        }).catch((error) => {
-            debugger;
-            console.log('error', error);
-        });
-    }
-    render() {
-        const { isShowSelectedItems, currentRange, error } = this.state;
-        const htmlFileName = this.htmlFileName;
-        let iframeUrl = `${window.location.origin}/htmlFiles/${htmlFileName}`
-        return (
-            <div className="annotation-section">
-                <div className="left-section">
-                    <div className="middle-section-container">
-
-                        <div className="middle-section">
-
-                            <iframe ref={this.iframeRef} id="iframe_annotation" title="iframe Example 2" style={{ "border": "none" }} src={iframeUrl} onLoad={this.handleIframeLoad}>
-                            </iframe>
-                            <div className="annotatedNodeElm">
-                                {this.createNode()}
-                            </div>
-
-                        </div>
-
-                    </div>
-                </div>
-                <div className="right-section">
-                    <div className="select-section">
-                        <label>
-                            <b>Annotation</b>
-                            {this.getSelectOptions()}
-
-                        </label>
-                        <div className="selectedValue">
-                            {currentRange.text}
-                        </div>
-                        {error && <p className="error"> {error}</p>}
-                        <div className="divBtn" onClick={this.handleSaveAnnotation}>Save </div>
-
-
-
-
-                    </div>
-
-                    <div className="divBtn" onClick={this.handleShowSelectdItem.bind(this, true)}>Show Selected Items </div>
-
-                    <div className="divBtn" onClick={this.handleSubmit}>Submit </div>
-
-                    {isShowSelectedItems &&
-                        <div className="select-items">
-                            {this.getSelectedItem()}
-                        </div>}
-                </div>
+        console.log("error", error);
+      });
+  };
+  render() {
+    const { isShowSelectedItems, currentRange, error } = this.state;
+    const htmlFileName = this.htmlFileName;
+    let iframeUrl = `${window.location.origin}/htmlFiles/${htmlFileName}`;
+    return (
+      <div className="annotation-section">
+        <div className="left-section">
+          <div className="middle-section-container">
+            <div className="middle-section">
+              <iframe ref={this.iframeRef} id="iframe_annotation" title="iframe Example 2" style={{ border: "none" }} src={iframeUrl} onLoad={this.handleIframeLoad}></iframe>
+              <div className="annotatedNodeElm">{this.createNode()}</div>
             </div>
-        );
-    }
+          </div>
+        </div>
+        <div className="right-section">
+          <div className="select-section">
+            <label>
+              <b>Annotation</b>
+              {this.getSelectOptions()}
+            </label>
+            <div className="selectedValue">{currentRange.text}</div>
+            {error && <p className="error"> {error}</p>}
+            <div className="divBtn mtb10" onClick={this.handleSaveAnnotation}>
+              Save{" "}
+            </div>
+          </div>
+
+          <div className="divBtn mtb10" onClick={this.handleShowSelectdItem.bind(this, true)}>
+            Show Selected Items{" "}
+          </div>
+
+          <div className="divBtn" onClick={this.handleSubmit}>
+            Submit{" "}
+          </div>
+        </div>
+        {isShowSelectedItems && <div className="select-items">{this.getSelectedItem()}</div>}
+      </div>
+    );
+  }
 }
 
 export default Annotate;
