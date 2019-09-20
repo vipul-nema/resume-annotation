@@ -1,42 +1,48 @@
 .annotatedHtmlListSection {
-    padding: 10px;
-    height: 100%;
+  padding: 10px;
+  height: 100%;
 
-    .annotatedHtmlList {
-        display: flex;
-        flex-direction: column;
-        width: 90%;
-        height: 90%;
-        overflow-y: auto;
+  .bulkActions {
+    text-align: left;
+  }
 
-        .annotatedHtmlItem {
-            display: flex;
-            /* height: 50px; */
-            align-items: center;
-            padding: 5px;
-            margin: 5px 10px;
-            background-color: burlywood;
-        }
+  .annotatedHtmlList {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    height: 90%;
+    overflow-y: scroll;
 
-        .listActions {
-            display: flex;
-            align-items: center;
-            justify-content: right;
-            margin-left: 20px;
-            // width: 300px;
-        }
-
-        .fileDetails {
-            width: 500px;
-            display: flex;
-            padding-left: 20px;
-            justify-content: flex-start;
-            overflow: auto;
-            align-items: center;
-
-            input[type="checkbox"] {
-                margin: 10px;
-            }
-        }
+    .annotatedHtmlItem {
+      display: flex;
+      height: 50px;
+      align-items: center;
+      padding: 10px;
+      background: #eee;
+      // justify-content: center;
     }
+
+    .annotatedHtmlItem:nth-of-type(odd) {
+      background: #ccc;
+    }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+    }
+
+    .listActions {
+      display: flex;
+      align-items: center;
+      justify-content: right;
+      margin-left: 100px;
+      width: 300px;
+    }
+
+    .fileDetails {
+      width: 300px;
+      display: flex;
+      padding-left: 20px;
+    }
+  }
 }
