@@ -60,7 +60,7 @@ class Annotate extends Component {
 
         this.state = {
             currentTagOption: this.tagOptions[0],
-            annotatedTagJson: { ...annotatedTagJson },
+            annotatedTagJson: {},
             highlightTag: {},
             isShowSelectedItems: false,
             currentRange: {}
@@ -70,6 +70,32 @@ class Annotate extends Component {
     }
 
     componentDidMount() {
+        if (this.htmlFileName.includes('annotated_')) {
+            let url = `${urlConfig.getJson}/${this.htmlFileName}`;
+
+            let reqObj = {
+                mode: 'cors',
+                cache: 'no-cache',
+                // credentials: 'include',
+                method: 'GET',
+            };
+            // url = 'http://dummy.restapiexample.com/api/v1/employees';
+            fetch(url, reqObj).then((response) => {
+                return response.json();
+            }).then((response) => {
+                this.setState({
+                    annotatedTagJson: response
+                });
+
+            }).catch((error) => {
+                debugger;
+                console.log('error', error);
+            });
+
+            this.setState({
+                annotatedTagJson: {}
+            });
+        }
 
     }
     initialize = () => {
@@ -255,7 +281,7 @@ class Annotate extends Component {
         // Math.random should be unique because of its seeding algorithm.
         // Convert it to base 36 (numbers + letters), and grab the first 9 characters
         // after the decimal.
-        return '_' + Math.random().toString(36).substr(2, 9);
+        return '_' + parseInt(Math.random() * 1000000000);
     };
     handleHighlight = (tagId) => {
         let { annotatedTagJson, highlightTag } = this.state;
@@ -384,7 +410,7 @@ class Annotate extends Component {
         let file = new File([oMyBlob], this.htmlFileName, { lastModifiedDate: new Date });
         data.append('file', file, this.htmlFileName);
         data.append('json', JSON.stringify(annotatedTagJson));
-        data.append('regexToBeRemoved', "data-annotate:(\\d{10})");
+        data.append('regexToBeRemoved', `data-annotate=\"_\d{9}\"`);
         debugger;
 
         let url = urlConfig.save;
@@ -397,7 +423,7 @@ class Annotate extends Component {
 
         fetch(url, reqObj).then((response) => {
             console.log("response", response);
-            history.push('./list');
+            history.push('/list');
         }).catch((error) => {
             debugger;
             console.log('error', error);

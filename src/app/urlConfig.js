@@ -4,7 +4,9 @@ const urlConfig = {
     save: `${origin}/save`,
     list: `${origin}/list`,
     downloadCSV: `${origin}/downloadCSV`,
-    downloadFile: `${origin}/downloadFile`
+    downloadFile: `${origin}/downloadFile`,
+    getFile: `${origin}/getFile`,
+    getJson: `${origin}/getJson`
 };
 
 export { urlConfig };

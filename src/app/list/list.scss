@@ -7,27 +7,36 @@
         flex-direction: column;
         width: 90%;
         height: 90%;
-        overflow-y: scroll;
+        overflow-y: auto;
 
         .annotatedHtmlItem {
             display: flex;
-            height: 50px;
+            /* height: 50px; */
             align-items: center;
-            // justify-content: center;
+            padding: 5px;
+            margin: 5px 10px;
+            background-color: burlywood;
         }
 
         .listActions {
             display: flex;
             align-items: center;
             justify-content: right;
-            margin-left: 100px;
-            width: 300px;
+            margin-left: 20px;
+            // width: 300px;
         }
 
         .fileDetails {
-            width: 300px;
+            width: 500px;
             display: flex;
             padding-left: 20px;
+            justify-content: flex-start;
+            overflow: auto;
+            align-items: center;
+
+            input[type="checkbox"] {
+                margin: 10px;
+            }
         }
     }
 }

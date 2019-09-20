@@ -2,140 +2,8 @@ import React, { Component } from 'react';
 import './list.scss';
 import { urlConfig } from '../urlConfig';
 var annotatedHtmlList = [
-    {
-        fileName: 'annotation1',
-
-    },
-    {
-        fileName: 'annotation2'
-    },
-    {
-        fileName: 'annotation3'
-    },
-    {
-        fileName: 'annotation4'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    },
-    {
-        fileName: '1_file1'
-    }
-]
+    'annotation1.html', 'annotation2.html', 'annotation3.html', 'annotation4.html',
+];
 
 class List extends Component {
     constructor(params) {
@@ -183,12 +51,12 @@ class List extends Component {
 
     handleDownloadCsv = (fileName, event) => {
         event.preventDefault();
-        window.open(`${urlConfig.downloadCSV}/${fileName}`);
+        window.open(`${urlConfig.downloadCSV}/${fileName}.csv`);
     }
 
     handleDownloadHtml = (fileName, event) => {
         event.preventDefault();
-        window.open(`${urlConfig.downloadFile}/${fileName}`);
+        window.open(`${urlConfig.downloadFile}/${fileName}.html`);
     }
 
     handleCheckBox = (event) => {
@@ -205,23 +73,26 @@ class List extends Component {
                     <div className="divBtn" onClick={this.handleDownloadHtml}> Download HTML </div>
                 </div>
                 <div className="annotatedHtmlList">
-                    {annotatedHtmlList.map((fileName, index) => {
+                    {annotatedHtmlList.length > 0 ? annotatedHtmlList.map((fullFileName, index) => {
+                        const fileName = fullFileName.split('.')[0];
+                        const isAnnotated = fileName.includes('annotated_');
                         {/* let { fileName } = annotatedHtml; */ }
                         return (
                             <div className="annotatedHtmlItem" key={fileName + index}>
 
                                 <div className="fileDetails">
-                                    <input type="checkbox" data-index={index} onChange={this.handleCheckBox} />
+                                    {/* <input type="checkbox" data-index={index} name={} value={} onChange={this.handleCheckBox} /> */}
                                     <span> File Name - {fileName}</span>
                                 </div>
                                 <div className="listActions">
-                                    <div className="divBtn" onClick={this.handleAnnotate.bind(this, fileName)}> Annotate </div>
-                                    <div className="divBtn" onClick={this.handleDownloadCsv.bind(this, fileName)}> Download Csv </div>
+                                    <div className="divBtn" onClick={this.handleAnnotate.bind(this, fullFileName)}> Annotate </div>
+                                    {isAnnotated && <div className="divBtn" onClick={this.handleDownloadCsv.bind(this, fileName)}> Download Csv </div>}
                                     <div className="divBtn" onClick={this.handleDownloadHtml.bind(this, fileName)}> Download HTML </div>
 
                                 </div>
                             </div>)
-                    })}
+                    }) : (<div className="noResult">No Result</div>)
+                    }
                 </div>
             </div>
         );
