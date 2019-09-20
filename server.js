@@ -7,14 +7,14 @@ var multer = require("multer");
 var upload = multer();
 
 const request = require("request");
-const origin = "http://192.168.166.139:8080";
+const origin = 'http://127.0.0.1:8080';
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(upload.array());
 
 app.use(express.static(path.join(__dirname, "build")));
 
-app.get("/htmlFiles/:htmlFileName", function(req, res) {
+app.get("/htmlFiles/:htmlFileName", function (req, res) {
   console.log("/htmlFiles/:htmlFileName", req.params);
   let url = `${origin}/getFile/${req.params.htmlFileName}`;
   console.log("url", url);
@@ -33,11 +33,11 @@ app.get("/htmlFiles/:htmlFileName", function(req, res) {
 //     // res.sendFile(path.join(__dirname, 'htmlFilesAnnt', `${req.params.htmlFileName}.html`));
 // });
 
-app.get("/*", function(req, res) {
+app.get("/*", function (req, res) {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
 var PORT = 5000;
-app.listen(PORT, function() {
+app.listen(PORT, function () {
   console.log("Server is running on PORT:", PORT);
 });
