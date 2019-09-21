@@ -9,12 +9,12 @@ class Upload extends Component {
     this.fileInput = React.createRef();
   }
 
-  handleSubmit = (history, event) => {
+  handleSubmit = (event) => {
+    const { history } = this.props;
     event.preventDefault();
 
     var data = new FormData();
     var files = this.fileInput.current.files;
-    debugger;
     for (const file of files) {
       data.append("files", file);
     }
@@ -28,32 +28,31 @@ class Upload extends Component {
 
     fetch(url, reqObj)
       .then(response => {
-        console.log("response", response);
-        history.push("./list");
+        if (response.ok) {
+          alert('Files uploaded successfully');
+        }
       })
       .catch(error => {
-        debugger;
         console.log("error", error);
+        alert('Some error happened in uploading file');
       });
   };
 
   render() {
     return (
       <div className="upload-section">
-        <Route
-          render={({ history }) => (
-            <form onSubmit={this.handleSubmit.bind(this, history)}>
-              <label htmlFor="file-uploader">
-                Choose HTML files: &nbsp;
+
+        <form onSubmit={this.handleSubmit}>
+          <label htmlFor="file-uploader">
+            Select HTML files: &nbsp;
                 <input type="file" id="file-uploader-ann" name="html-file-uploader" accept=".htm, .html" multiple={true} ref={this.fileInput} />
-              </label>
-              <br />
-              <button className="divBtn mtb10" type="submit">
-                Submit
+          </label>
+          <br />
+          <button className="divBtn mtb10" type="submit">
+            Upload
               </button>
-            </form>
-          )}
-        />
+        </form>
+
       </div>
     );
   }

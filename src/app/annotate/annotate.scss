@@ -50,7 +50,7 @@
         overflow-y: auto;
         width: unset;
         word-wrap: break-word;
-        height: 50px;
+        height: 150px;
         background-color: #eeeeee;
         opacity: 1;
         overflow-x: hidden;
@@ -62,12 +62,15 @@
   .flex {
     display: flex;
   }
+
   .boxTag {
     flex-grow: 1;
   }
+
   .boxTagBig {
     flex-grow: 5;
   }
+
   .select-items {
     position: absolute;
     right: 10px;
