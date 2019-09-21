@@ -1,11 +1,15 @@
 import React from 'react';
 // import logo from './logo.svg';
 import './App.scss';
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import Header from "./app/header";
 import List from './app/list';
 import Upload from './app/upload';
 import Annotate from './app/annotate';
+
+const NoMatch = () => {
+  return <div className="page404">404 No page found </div>
+}
 
 function App() {
   return (
@@ -15,10 +19,13 @@ function App() {
           <Header />
         </header>
         <div className="App-body">
-          <Route exact path="/" component={List} />
-          <Route path="/list" component={List} />
-          <Route path="/upload" component={Upload} />
-          <Route path="/annotate/:htmlFileName" exact={false} component={Annotate} />
+          <Switch>
+            <Route exact path="/" component={List} />
+            <Route exact path="/list" component={List} />
+            <Route exact path="/upload" component={Upload} />
+            <Route exact path="/annotate/:htmlFileName" exact={false} component={Annotate} />
+            <Route component={NoMatch} />
+          </Switch>
         </div>
       </Router>
 

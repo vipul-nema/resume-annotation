@@ -197,9 +197,9 @@ class Annotate extends Component {
         width: `${clientRect.width}px`
       };
       clientRectHighLighter.push(<span className="highLighter" style={style}></span>);
-      if (prop === 0 || prop === clientRectsLength - 1) {
-        clientRectHighLighter.push(<span className="highLighter" style={style}></span>);
-      }
+      // if (prop === 0 || prop === clientRectsLength - 1) {
+      //   clientRectHighLighter.push(<span className="highLighter" style={style}></span>);
+      // }
     }
 
     return <div className="highLighterDiv"> {clientRectHighLighter} </div>;
@@ -277,10 +277,11 @@ class Annotate extends Component {
     let newHighlightTag = {};
     //If already hightlighted, remove
     if (highlightTag[tagId]) {
+      newHighlightTag = { ...highlightTag };
       delete newHighlightTag[tagId];
     } else {
       //If not hightlighted then highlight
-      newHighlightTag = { ...highlightTag, [tagId]: annotatedTagJson[tagId] }
+      newHighlightTag = { ...highlightTag, [tagId]: annotatedTagJson[tagId] };
     }
 
     this.setState({
