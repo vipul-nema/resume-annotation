@@ -15,10 +15,10 @@ class List extends Component {
   }
 
   componentDidMount() {
-    this.setState({
-      annotatedHtmlList: annotatedHtmlList
-    });
-    return;
+    // this.setState({
+    //   annotatedHtmlList: annotatedHtmlList
+    // });
+    // return;
 
     let url = urlConfig.list;
     let reqObj = {
