@@ -18,7 +18,7 @@ const request = require("request");
 // var upload = multer({ storage: storage });
 
 //ServerAPI origin
-const origin = "http://192.168.166.139:8080";
+const origin = "http://192.168.166.139:8081";
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -46,7 +46,7 @@ app.get("/*", function (req, res) {
 // });
 
 
-var PORT = 5000;
+var PORT = 5001;
 app.listen(PORT, function () {
   console.log("Server is running on PORT:", PORT);
 });
