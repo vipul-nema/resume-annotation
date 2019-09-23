@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "./annotate.scss";
 import { urlConfig } from "../urlConfig";
+import tagOptions from "./tagOptions";
 let annotatedTagJson = {
   // name_100_30: {
   //     top: 100,
@@ -25,33 +26,7 @@ let annotatedTagJson = {
 class Annotate extends Component {
   constructor(params) {
     super(params);
-    this.tagOptions = [
-      {
-        name: "select",
-        value: "Select",
-        backgroundColor: "blue"
-      },
-      {
-        name: "name",
-        value: "Name",
-        backgroundColor: "blue"
-      },
-      {
-        name: "email",
-        value: "Email",
-        backgroundColor: "green"
-      },
-      {
-        name: "skill",
-        value: "Skill",
-        backgroundColor: "grey"
-      },
-      {
-        name: "company",
-        value: "Company",
-        backgroundColor: "aqua"
-      }
-    ];
+    this.tagOptions = [...tagOptions];
 
     const { history, match } = this.props;
     let { htmlFileName } = match.params;
