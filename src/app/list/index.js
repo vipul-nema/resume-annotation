@@ -15,10 +15,10 @@ class List extends Component {
   }
 
   componentDidMount() {
-    // this.setState({
-    //   annotatedHtmlList: annotatedHtmlList
-    // });
-    // return;
+    this.setState({
+      annotatedHtmlList: annotatedHtmlList
+    });
+    return;
 
     let url = urlConfig.list;
     let reqObj = {
@@ -127,9 +127,9 @@ class List extends Component {
                   <span> File Name - {fileName}</span>
                 </div>
                 <div className="listActions">
-                  <div className="divBtn" onClick={this.handleAnnotate.bind(this, fullFileName)}> Annotate </div>
-                  {isAnnotated && <div className="divBtn" onClick={this.handleDownloadCsv.bind(this, fileName)}> Download Csv </div>}
-                  <div className="divBtn" onClick={this.handleDownloadHtml.bind(this, fileName)}> Download HTML </div>
+                  <div className="divBtn mlr10" onClick={this.handleAnnotate.bind(this, fullFileName)}> Annotate </div>
+                  {isAnnotated && <div className="divBtn mlr10" onClick={this.handleDownloadCsv.bind(this, fileName)}> Download Csv </div>}
+                  <div className="divBtn mlr10" onClick={this.handleDownloadHtml.bind(this, fileName)}> Download HTML </div>
 
                 </div>
               </div>)
