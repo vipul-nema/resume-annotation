@@ -18,7 +18,7 @@ const request = require("request");
 // var upload = multer({ storage: storage });
 
 //ServerAPI origin
-const origin = "http://192.168.166.139:8080";
+const origin = 'http://192.168.40.59:8080';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -26,11 +26,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/htmlFiles/:htmlFileName", function (req, res) {
-  // let url = `${origin}/getFile/${req.params.htmlFileName}`;
-  // console.log("url", url);
-  // request.get(url).pipe(res);
+  let url = `${origin}/getFile/${req.params.htmlFileName}`;
+  console.log("url", url);
+  request.get(url).pipe(res);
 
-  res.sendFile(path.join(__dirname, 'htmlFilesAnnt', `${req.params.htmlFileName}.html`));
+  // res.sendFile(path.join(__dirname, 'htmlFilesAnnt', `${req.params.htmlFileName}.html`));
 });
 
 app.get("/*", function (req, res) {

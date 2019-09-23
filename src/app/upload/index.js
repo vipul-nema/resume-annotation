@@ -28,9 +28,7 @@ class Upload extends Component {
 
     fetch(url, reqObj)
       .then(response => {
-        if (response.ok) {
-          alert('Files uploaded successfully');
-        }
+        alert('Files uploaded successfully');
       })
       .catch(error => {
         console.log("error", error);
