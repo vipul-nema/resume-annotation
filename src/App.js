@@ -21,7 +21,7 @@ function App() {
         <div className="App-body">
           <Switch>
             <Route exact path="/" component={List} />
-            <Route exact path="/list" component={List} />
+            <Route path="/list/:admin?" component={List} />
             <Route exact path="/upload" component={Upload} />
             <Route exact path="/annotate/:htmlFileName" exact={false} component={Annotate} />
             <Route component={NoMatch} />

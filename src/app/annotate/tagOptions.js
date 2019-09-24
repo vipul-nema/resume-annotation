@@ -1,0 +1,237 @@
+const tagOptions = [{
+    "tag_name": "1_company",
+    "tag_description": "1_company"
+}, {
+    "tag_name": "1_designation",
+    "tag_description": "1_designation"
+}, {
+    "tag_name": "1_time_duration_finish",
+    "tag_description": "1_time_duration_finish"
+}, {
+    "tag_name": "1_time_duration_start",
+    "tag_description": "1_time_duration_start"
+}, {
+    "tag_name": "2_company",
+    "tag_description": "2_company"
+}, {
+    "tag_name": "2_designation",
+    "tag_description": "2_designation"
+}, {
+    "tag_name": "2_time_duration_finish",
+    "tag_description": "2_time_duration_finish"
+}, {
+    "tag_name": "2_time_duration_start",
+    "tag_description": "2_time_duration_start"
+}, {
+    "tag_name": "3_company",
+    "tag_description": "3_company"
+}, {
+    "tag_name": "3_designation",
+    "tag_description": "3_designation"
+}, {
+    "tag_name": "3_time_duration_finish",
+    "tag_description": "3_time_duration_finish"
+}, {
+    "tag_name": "3_time_duration_start",
+    "tag_description": "3_time_duration_start"
+}, {
+    "tag_name": "4_company",
+    "tag_description": "4_company"
+}, {
+    "tag_name": "4_designation",
+    "tag_description": "4_designation"
+}, {
+    "tag_name": "4_time_duration_finish",
+    "tag_description": "4_time_duration_finish"
+}, {
+    "tag_name": "4_time_duration_start",
+    "tag_description": "4_time_duration_start"
+}, {
+    "tag_name": "5_company",
+    "tag_description": "5_company"
+}, {
+    "tag_name": "5_designation",
+    "tag_description": "5_designation"
+}, {
+    "tag_name": "5_time_duration_finish",
+    "tag_description": "5_time_duration_finish"
+}, {
+    "tag_name": "5_time_duration_start",
+    "tag_description": "5_time_duration_start"
+}, {
+    "tag_name": "6_company",
+    "tag_description": "6_company"
+}, {
+    "tag_name": "6_designation",
+    "tag_description": "6_designation"
+}, {
+    "tag_name": "6_time_duration_finish",
+    "tag_description": "6_time_duration_finish"
+}, {
+    "tag_name": "6_time_duration_start",
+    "tag_description": "6_time_duration_start"
+}, {
+    "tag_name": "7_company",
+    "tag_description": "7_company"
+}, {
+    "tag_name": "7_designation",
+    "tag_description": "7_designation"
+}, {
+    "tag_name": "7_time_duration_finish",
+    "tag_description": "7_time_duration_finish"
+}, {
+    "tag_name": "7_time_duration_start",
+    "tag_description": "7_time_duration_start"
+}, {
+    "tag_name": "ADDRESS",
+    "tag_description": "ADDRESS"
+}, {
+    "tag_name": "Alternate_Phone",
+    "tag_description": "Alternate_Phone"
+}, {
+    "tag_name": "CV_Heading",
+    "tag_description": "CV_Heading"
+}, {
+    "tag_name": "Current_location",
+    "tag_description": "Current_location"
+}, {
+    "tag_name": "DIPLOMA_YEAR",
+    "tag_description": "DIPLOMA_YEAR"
+}, {
+    "tag_name": "DIPLOMA_course",
+    "tag_description": "DIPLOMA_course"
+}, {
+    "tag_name": "Date_of_Birth",
+    "tag_description": "Date_of_Birth"
+}, {
+    "tag_name": "Diploma_Institute",
+    "tag_description": "Diploma_Institute"
+}, {
+    "tag_name": "Diploma_Specialization",
+    "tag_description": "Diploma_Specialization"
+}, {
+    "tag_name": "Domain_Relevant_Work_Ex",
+    "tag_description": "Domain_Relevant_Work_Ex"
+}, {
+    "tag_name": "Education_Full_Part_Time",
+    "tag_description": "Education_Full_Part_Time"
+}, {
+    "tag_name": "Email_address",
+    "tag_description": "Email_address"
+}, {
+    "tag_name": "Employed_Type_Business",
+    "tag_description": "Employed_Type_Business"
+}, {
+    "tag_name": "Employed_Type_Freelancer",
+    "tag_description": "Employed_Type_Freelancer"
+}, {
+    "tag_name": "Employed_Type_Self_Employed",
+    "tag_description": "Employed_Type_Self_Employed"
+}, {
+    "tag_name": "End_Section_Education",
+    "tag_description": "End_Section_Education"
+}, {
+    "tag_name": "End_Section_Personal_info",
+    "tag_description": "End_Section_Personal_info"
+}, {
+    "tag_name": "End_Section_Professional_Summary",
+    "tag_description": "End_Section_Professional_Summary"
+}, {
+    "tag_name": "End_Section_Projects",
+    "tag_description": "End_Section_Projects"
+}, {
+    "tag_name": "End_Section_Skills",
+    "tag_description": "End_Section_Skills"
+}, {
+    "tag_name": "End_Section_Work_Experience",
+    "tag_description": "End_Section_Work_Experience"
+}, {
+    "tag_name": "Highest_Degree",
+    "tag_description": "Highest_Degree"
+}, {
+    "tag_name": "Job_profile_end",
+    "tag_description": "Job_profile_end"
+}, {
+    "tag_name": "Job_profile_start",
+    "tag_description": "Job_profile_start"
+}, {
+    "tag_name": "Mobile_num",
+    "tag_description": "Mobile_num"
+}, {
+    "tag_name": "Name",
+    "tag_description": "Name"
+}, {
+    "tag_name": "Notice_Period",
+    "tag_description": "Notice_Period"
+}, {
+    "tag_name": "PGCOURSE",
+    "tag_description": "PGCOURSE"
+}, {
+    "tag_name": "PGINST",
+    "tag_description": "PGINST"
+}, {
+    "tag_name": "PGSPEC",
+    "tag_description": "PGSPEC"
+}, {
+    "tag_name": "PGYEAR",
+    "tag_description": "PGYEAR"
+}, {
+    "tag_name": "PPGCOURSE",
+    "tag_description": "PPGCOURSE"
+}, {
+    "tag_name": "PPGINST",
+    "tag_description": "PPGINST"
+}, {
+    "tag_name": "PPGSPEC",
+    "tag_description": "PPGSPEC"
+}, {
+    "tag_name": "PPGYEAR",
+    "tag_description": "PPGYEAR"
+}, {
+    "tag_name": "Preferred_Location",
+    "tag_description": "Preferred_Location"
+}, {
+    "tag_name": "Project",
+    "tag_description": "Project"
+}, {
+    "tag_name": "Secondary Email",
+    "tag_description": "Secondary Email"
+}, {
+    "tag_name": "Skills",
+    "tag_description": "Skills"
+}, {
+    "tag_name": "Start_Section_Education",
+    "tag_description": "Start_Section_Education"
+}, {
+    "tag_name": "Start_Section_Personal_info",
+    "tag_description": "Start_Section_Personal_info"
+}, {
+    "tag_name": "Start_Section_Professional_Summary",
+    "tag_description": "Start_Section_Professional_Summary"
+}, {
+    "tag_name": "Start_Section_Projects",
+    "tag_description": "Start_Section_Projects"
+}, {
+    "tag_name": "Start_Section_Skills",
+    "tag_description": "Start_Section_Skills"
+}, {
+    "tag_name": "Start_Section_Work_Experience",
+    "tag_description": "Start_Section_Work_Experience"
+}, {
+    "tag_name": "Total_Work_Ex",
+    "tag_description": "Total_Work_Ex"
+}, {
+    "tag_name": "UGCOURSE",
+    "tag_description": "UGCOURSE"
+}, {
+    "tag_name": "UGINST",
+    "tag_description": "UGINST"
+}, {
+    "tag_name": "UGSPEC",
+    "tag_description": "UGSPEC"
+}, {
+    "tag_name": "UGYEAR",
+    "tag_description": "UGYEAR"
+}];
+
+export default tagOptions;

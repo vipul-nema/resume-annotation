@@ -6,8 +6,9 @@ var annotatedHtmlList = [
 ];
 
 class List extends Component {
-  constructor(params) {
-    super(params);
+  constructor(props) {
+    super(props);
+
     this.state = {
       annotatedHtmlList: [],
       selectedFiles: []
@@ -46,10 +47,11 @@ class List extends Component {
       });
   }
 
+
   handleAnnotate = (fullFileName, event) => {
     event.preventDefault();
     const { history } = this.props;
-    history.push(`annotate/${fullFileName}`);
+    history.push(`/annotate/${fullFileName}`);
   }
 
   handleDownloadCsv = (fileName, event) => {
@@ -94,8 +96,21 @@ class List extends Component {
     window.open(`${urlConfig.downloadFileBulk}${selectedFiles.join(',')}`);
   }
 
+  isAdmin = () => {
+    const { match } = this.props;
+    const { params } = match;
+    let isAdmin = false;
+    if (params.admin === 'admin') {
+      isAdmin = true;
+    } else {
+      isAdmin = false;
+    }
+    return isAdmin;
+  }
   render() {
     const { annotatedHtmlList } = this.state;
+    const isAdmin = this.isAdmin();
+
     const annotatedHtmlListLength = annotatedHtmlList.length;
 
     if (annotatedHtmlListLength === 0) {
@@ -105,14 +120,14 @@ class List extends Component {
     return (
       <div className="annotatedHtmlListSection">
 
-        <div className="bulkActions">
+        {isAdmin && <div className="bulkActions">
           <div className="divBtn mlr10 mbr10" onClick={this.handleDownloadCsvBulk}>
             Bulk Download Csv
           </div>
           <div className="divBtn mlr10 mbr10" onClick={this.handleDownloadHtmlBulk}>
             Bulk Download HTML
           </div>
-        </div>
+        </div>}
 
         <div className="annotatedHtmlList">
           {annotatedHtmlList.length > 0 ? annotatedHtmlList.map((fullFileName, index) => {
@@ -126,10 +141,12 @@ class List extends Component {
                   <input type="checkbox" defaultChecked={false} onChange={this.handleCheckBox.bind(this, fullFileName)} />
                   <span> File Name - {fileName}</span>
                 </div>
+
+
                 <div className="listActions">
-                  <div className="divBtn" onClick={this.handleAnnotate.bind(this, fullFileName)}> Annotate </div>
-                  {isAnnotated && <div className="divBtn" onClick={this.handleDownloadCsv.bind(this, fileName)}> Download Csv </div>}
-                  <div className="divBtn" onClick={this.handleDownloadHtml.bind(this, fileName)}> Download HTML </div>
+                  <div className="divBtn mlr10" onClick={this.handleAnnotate.bind(this, fullFileName)}> Annotate </div>
+                  {isAnnotated && isAdmin && <div className="divBtn mlr10" onClick={this.handleDownloadCsv.bind(this, fileName)}> Download Csv </div>}
+                  {isAdmin && <div className="divBtn mlr10" onClick={this.handleDownloadHtml.bind(this, fileName)}> Download HTML </div>}
 
                 </div>
               </div>)
