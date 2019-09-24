@@ -2,6 +2,10 @@ import React, { Component } from "react";
 import "./annotate.scss";
 import { urlConfig } from "../urlConfig";
 import tagOptions from "./tagOptions";
+import Suggestor from "../common/suggestor/suggestor";
+import SuggestorTag from "./suggestorTag";
+
+
 let annotatedTagJson = {
   // name_100_30: {
   //     top: 100,
@@ -33,11 +37,12 @@ class Annotate extends Component {
     this.htmlFileName = htmlFileName;
 
     this.state = {
-      currentTagOption: this.tagOptions[0],
+      currentTagOption: {},
       annotatedTagJson: {},
       highlightTag: {},
       isShowSelectedItems: false,
-      currentRange: {}
+      currentRange: {},
+      suggestorValue: ""
 
     }
     this.iframeRef = React.createRef();
@@ -62,7 +67,7 @@ class Annotate extends Component {
         });
 
       }).catch((error) => {
-        debugger;
+
         console.log('error', error);
       });
 
@@ -95,7 +100,7 @@ class Annotate extends Component {
   };
   assignUniqueAttribue = node => {
     var elements = node.querySelectorAll("body *");
-    debugger;
+
     let elementsLength = elements.length;
     for (let i = 0; i < elementsLength; i++) {
       elements[i].setAttribute("data-annotate", this.getUniqueID());
@@ -120,7 +125,7 @@ class Annotate extends Component {
         //get clientRect position of selected node or characters
         let clientRects = range.getClientRects();
         let boundingClientRect = range.getBoundingClientRect();
-        console.log("clientRects", clientRects, boundingClientRect);
+        // console.log("clientRects", clientRects, boundingClientRect);
         let firstRect = clientRects[0];
         let lastRect = clientRects[0];
 
@@ -133,25 +138,24 @@ class Annotate extends Component {
         }
         var childHtml = this.getChildHtml(`${div.innerHTML}`);
         var parentHtml = `${node.body.parentNode.outerHTML}`;
-        // debugger;
+        //
         var start = this.getSelectedNodeIndex(parentHtml, childHtml, range, selection, event);
         var end = start + childHtml.length;
 
         this.setState({
           currentRange: {
             top: firstRect.top,
-            left: firstRect.left,
+            left: lastRect.left,
             value: childHtml,
-            tag: this.state.currentTagOption.name,
+            tag: this.state.currentTagOption.id,
             start,
             end,
             clientRects,
             text: range.toString()
-          }
+          },
+          suggestorValue: "",
+          currentTagOption: {}
         });
-        // this.updateAnnotateConfig({
-
-        // });
 
         return div.innerHTML;
       }
@@ -183,7 +187,7 @@ class Annotate extends Component {
   getChildHtml = childHtml => {
     //Add all openig tags data
     while (childHtml.indexOf("<") === 0) {
-      console.log("step 1");
+      // console.log("step 1");
       childHtml = childHtml.slice(childHtml.indexOf(">") + 1);
     }
     //Delete all end tags data
@@ -195,13 +199,13 @@ class Annotate extends Component {
   };
 
   getSelectedNodeIndex = (parentHtml, selectedItem, range, selection, event) => {
-    console.log("range", range, selection);
+    // console.log("range", range, selection);
     if (selectedItem.includes("<") && selectedItem.includes(">")) {
       return parentHtml.indexOf(selectedItem);
     } else {
       let parentElement = range.commonAncestorContainer;
       while (parentElement.nodeType !== 1) {
-        console.log("step 3");
+        // console.log("step 3");
         parentElement = parentElement.parentElement;
       }
       let commonParentHtml = parentElement.outerHTML;
@@ -218,7 +222,7 @@ class Annotate extends Component {
       ...currentRange,
       top: currentRange.top,
       left: currentRange.left,
-      tag: currentTagOption.name, // currentTag
+      tag: currentTagOption.id, // currentTag
       value: currentRange.value,
       start: currentRange.start,
       end: currentRange.end
@@ -230,7 +234,7 @@ class Annotate extends Component {
     let { annotatedTagJson, highlightTag } = this.state;
     let output = [];
     // Object.keys(annotatedTagJson)
-    debugger;
+
     return Object.keys(highlightTag).map((tagId, index) => {
       const config = annotatedTagJson[tagId];
       if (config) {
@@ -291,7 +295,7 @@ class Annotate extends Component {
             let config = annotatedTagJson[prop];
             return (
               <div className="tagItemDetails">
-                <div class="flex">
+                <div className="flex">
                   <div className="tagItem boxTag boxTagBig">Tag - {config.tag}</div>
                   <div className="divBtn mlr10 boxTag" onClick={() => this.handleHighlight(prop)}>
                     Highlight
@@ -300,10 +304,10 @@ class Annotate extends Component {
                     Delete
                   </div>
                 </div>
-                <p className="tagItem">
+                {/* <p className="tagItem">
                   Index - [{config.start} - {config.end}]{" "}
-                </p>
-                <p className="tagItem">Html - {config.value}</p>
+                </p> */}
+                {/* <p className="tagItem">Html - {config.value}</p> */}
                 <p className="tagItem">TEXT - {config.text}</p>
               </div>
             );
@@ -313,30 +317,41 @@ class Annotate extends Component {
     );
   };
 
-  getSelectOptions = () => {
-    return (
-      <select id="select-annt-tag" value={this.state.currentTagOption.name} onChange={this.handleTagChange}>
-        {this.tagOptions.map((tagOption, index) => {
-          let style = {
-            backgroundColor: tagOption.backgroundColor
-          };
-          return (
-            <option key={tagOption.name} className="select-annt-option" value={tagOption.name} style={style}>
-              {tagOption.value}
-            </option>
-          );
-        })}
-      </select>
-    );
-  };
-  handleTagChange = event => {
-    let target = event.target;
+  updateSuggestorValue = (suggestorValue) => {
+    this.setState({
+      suggestorValue
+    });
+  }
 
-    let currentTagOption = this.tagOptions.filter(tagOption => {
-      if (tagOption.name == target.value) {
-        return true;
-      }
-    })[0];
+  getSelectOptions = () => {
+    return <SuggestorTag handleTagChange={this.handleTagChange}
+      suggestorValue={this.state.suggestorValue}
+      updateSuggestorValue={this.updateSuggestorValue} />;
+    // return (
+    //   <select id="select-annt-tag" value={this.state.currentTagOption.name} onChange={this.handleTagChange}>
+    //     {this.tagOptions.map((tagOption, index) => {
+    //       let style = {
+    //         backgroundColor: tagOption.backgroundColor
+    //       };
+    //       return (
+    //         <option key={tagOption.name} className="select-annt-option" value={tagOption.name} style={style}>
+    //           {tagOption.value}
+    //         </option>
+    //       );
+    //     })}
+    //   </select>
+    // );
+
+
+  };
+  handleTagChange = (currentTagOption) => {
+    // let target = event.target;
+
+    // let currentTagOption = this.tagOptions.filter(tagOption => {
+    //   if (tagOption.name == target.value) {
+    //     return true;
+    //   }
+    // })[0];
 
     this.setState({
       currentTagOption
@@ -357,23 +372,21 @@ class Annotate extends Component {
 
   handleSaveAnnotation = () => {
     let { currentRange, annotatedTagJson, currentTagOption } = this.state;
+    let newAnnotatedTagJson = { ...annotatedTagJson, ...this.getAnnotateTagConfig() };
 
-    if (currentTagOption.name === "select" || (currentRange.text && currentRange.text.length === 0)) {
-      this.setState({
-        error: "Select Value"
-      });
-      return;
-    } else {
-      let newAnnotatedTagJson = { ...annotatedTagJson, ...this.getAnnotateTagConfig() };
-      debugger;
-      this.setState({
-        annotatedTagJson: newAnnotatedTagJson,
-        currentRange: {},
-        currentTagOption: this.tagOptions[0],
-        error: null
-      });
-    }
+    this.setState({
+      annotatedTagJson: newAnnotatedTagJson,
+      currentRange: {},
+      currentTagOption: {},
+      error: null
+    });
   };
+
+  isSaveAllowed = () => {
+    let { currentTagOption, currentRange } = this.state;
+    return currentTagOption.id && (currentRange.text && currentRange.text.length !== 0)
+
+  }
 
   handleSubmit = () => {
     const { history } = this.props;
@@ -385,7 +398,7 @@ class Annotate extends Component {
     data.append('file', file, this.htmlFileName);
     data.append('json', JSON.stringify(annotatedTagJson));
     data.append('regexToBeRemoved', `\\s*data-annotate=\\"_\\d{9}\\"`);
-    debugger;
+
 
     let url = urlConfig.save;
     let reqObj = {
@@ -397,12 +410,12 @@ class Annotate extends Component {
 
     fetch(url, reqObj)
       .then(response => {
-        console.log("response", response);
+        // console.log("response", response);
         history.push("/list");
 
       })
       .catch(error => {
-        debugger;
+
         console.log("error", error);
       });
   };
@@ -427,10 +440,10 @@ class Annotate extends Component {
               {this.getSelectOptions()}
             </label>
             <div className="selectedValue">{currentRange.text}</div>
-            {error && <p className="error"> {error}</p>}
-            <div className="divBtn mtb10" onClick={this.handleSaveAnnotation}>
+            {/* {error && <p className="error"> {error}</p>} */}
+            {this.isSaveAllowed() && <div className="divBtn mtb10" onClick={this.handleSaveAnnotation}>
               Save{" "}
-            </div>
+            </div>}
           </div>
 
           <div className="divBtn mtb10" onClick={this.handleShowSelectdItem.bind(this, true)}>

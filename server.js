@@ -18,7 +18,7 @@ const request = require("request");
 // var upload = multer({ storage: storage });
 
 //ServerAPI origin
-const origin = 'http://192.168.40.59:8080';
+const origin = 'http://192.168.40.59:8081';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
