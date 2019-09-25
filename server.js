@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 const app = express();
-const build = require("./scripts/dev");
+const build = require("./scripts/build");
 var bodyParser = require("body-parser");
 // var multer = require("multer");
 const request = require("request");

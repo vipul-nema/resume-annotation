@@ -72,7 +72,8 @@
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
-    "server": "node server.js"
+    "stage": "node server.js",
+    "prod": "node server.js"
   },
   "eslintConfig": {
     "extends": "react-app"
