@@ -1,6 +1,6 @@
 
 
-const origin = 'http://192.168.40.59:8080';;
+const origin = 'http://resume.annotate.com:8080';
 const urlConfig = {
     uploadMultipleFiles: `${origin}/uploadMultipleFiles`,
     save: `${origin}/save`,
