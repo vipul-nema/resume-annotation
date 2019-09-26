@@ -81,19 +81,22 @@ class List extends Component {
 
   handleDownloadCsvBulk = (event) => {
     event.preventDefault();
-    let { selectedFiles } = this.state;
-    let csvFileNames = selectedFiles.map((fileName) => {
+    let { annotatedHtmlList } = this.state;
+    let csvFileNames = annotatedHtmlList.filter((fileName) => {
+      if (fileName.includes('annotated_')) {
+        return true;
+      }
+    }).map((fileName) => {
       return fileName.split('.')[0] + '.csv';
     });
-    console.log('handleDownloadCsvBulk', csvFileNames);
     window.open(`${urlConfig.downloadCSVBulk}${csvFileNames.join(',')}`);
   }
 
   handleDownloadHtmlBulk = (event) => {
     event.preventDefault();
-    let { selectedFiles } = this.state;
-    console.log('handleDownloadHtmlBulk', selectedFiles);
-    window.open(`${urlConfig.downloadFileBulk}${selectedFiles.join(',')}`);
+    let { annotatedHtmlList } = this.state;
+
+    window.open(`${urlConfig.downloadFileBulk}${annotatedHtmlList.join(',')}`);
   }
 
   isAdmin = () => {
@@ -138,8 +141,8 @@ class List extends Component {
               <div className="annotatedHtmlItem" key={fileName + index}>
 
                 <div className="fileDetails">
-                  <input type="checkbox" defaultChecked={false} onChange={this.handleCheckBox.bind(this, fullFileName)} />
-                  <span> File Name - {fileName}</span>
+                  {/* <input type="checkbox" defaultChecked={false} onChange={this.handleCheckBox.bind(this, fullFileName)} /> */}
+                  <span>{fileName}</span>
                 </div>
 
 

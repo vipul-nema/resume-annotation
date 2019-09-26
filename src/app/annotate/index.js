@@ -4,35 +4,36 @@ import { urlConfig } from "../urlConfig";
 import tagOptions from "./tagOptions";
 import Suggestor from "../common/suggestor/suggestor";
 import SuggestorTag from "./suggestorTag";
+import { reject } from "q";
 
 
-let annotatedTagJson = {
-  // name_100_30: {
-  //     top: 100,
-  //     left: 30,
-  //     tag: 'name',
-  //     value: '<span>Ravi</span>',
-  //     start: 50, //Start index
-  //     end: 67, //End index,
-  //     backgroundColor: 'blue'
-  // },
-  // email_200_50: {
-  //     top: 200,
-  //     left: 50,
-  //     tag: 'email',
-  //     value: 'vipul@naukri.com',
-  //     start: 20,
-  //     end: 36,
-  //     backgroundColor: 'green'
-  // }
-};
+// let annotatedTagJson = {
+// name_100_30: {
+//     top: 100,
+//     left: 30,
+//     tag: 'name',
+//     value: '<span>Ravi</span>',
+//     start: 50, //Start index
+//     end: 67, //End index,
+//     backgroundColor: 'blue'
+// },
+// email_200_50: {
+//     top: 200,
+//     left: 50,
+//     tag: 'email',
+//     value: 'vipul@naukri.com',
+//     start: 20,
+//     end: 36,
+//     backgroundColor: 'green'
+// }
+// };
 
 class Annotate extends Component {
   constructor(params) {
     super(params);
     this.tagOptions = [...tagOptions];
 
-    const { history, match } = this.props;
+    const { match } = this.props;
     let { htmlFileName } = match.params;
     this.htmlFileName = htmlFileName;
 
@@ -45,10 +46,12 @@ class Annotate extends Component {
       suggestorValue: ""
 
     }
+    //Ref on iframe
     this.iframeRef = React.createRef();
   }
 
   componentDidMount() {
+    // Is resume is already annotated or not, else api giving error
     if (this.htmlFileName.includes('annotated_')) {
       let url = `${urlConfig.getJson}/${this.htmlFileName}`;
 
@@ -76,10 +79,10 @@ class Annotate extends Component {
       });
     }
 
+    this.fetchIframeHtml();
+
   }
-  // initialize = () => {
-  // node.designMode = "on";
-  // node.body.contentEditable = true;
+
 
   handleIframeLoad = event => {
     // window.getSelection().addRange(new Range());
@@ -93,10 +96,11 @@ class Annotate extends Component {
 
     this.iframeDocument.body.addEventListener("mouseup", this.getEndPosition.bind(this));
 
+    //Now id would be added at backend side
     //Assign id if not present
-    if (!this.iframeDocument.querySelector("[data-annotate]")) {
-      this.assignUniqueAttribue(this.iframeDocument);
-    }
+    // if (!this.iframeDocument.querySelector("[data-annotate]")) {
+    //   this.assignUniqueAttribue(this.iframeDocument);
+    // }
   };
   assignUniqueAttribue = node => {
     var elements = node.querySelectorAll("body *");
@@ -137,7 +141,7 @@ class Annotate extends Component {
           return;
         }
         var childHtml = this.getChildHtml(`${div.innerHTML}`);
-        var parentHtml = `${node.body.parentNode.outerHTML}`;
+        var parentHtml = this.iframeHtml;
         //
         var start = this.getSelectedNodeIndex(parentHtml, childHtml, range, selection, event);
         var end = start + childHtml.length;
@@ -218,7 +222,7 @@ class Annotate extends Component {
   getAnnotateTagConfig = () => {
     const { currentRange, currentTagOption } = this.state;
     let currentRangeConfig = {};
-    currentRangeConfig[`${currentRange.tag}_${currentRange.top}_${currentRange.left}`] = {
+    currentRangeConfig[`${currentTagOption.id}_${currentRange.top}_${currentRange.left}`] = {
       ...currentRange,
       top: currentRange.top,
       left: currentRange.left,
@@ -392,12 +396,12 @@ class Annotate extends Component {
     const { history } = this.props;
     const { annotatedTagJson } = this.state;
     // an array consisting of a single DOMString
-    var oMyBlob = new Blob([this.iframeDocument.body.parentNode.outerHTML], { type: 'text/html' });
+    var oMyBlob = new Blob([this.iframeHtml], { type: 'text/html' });
     var data = new FormData();
     let file = new File([oMyBlob], this.htmlFileName, { lastModifiedDate: new Date });
     data.append('file', file, this.htmlFileName);
     data.append('json', JSON.stringify(annotatedTagJson));
-    data.append('regexToBeRemoved', `\\s*data-annotate=\\"_\\d{9}\\"`);
+    data.append('regexToBeRemoved', ` data-annotate=\\"_\\d{9}\\"`);
 
 
     let url = urlConfig.save;
@@ -415,20 +419,51 @@ class Annotate extends Component {
 
       })
       .catch(error => {
-
         console.log("error", error);
       });
   };
-  render() {
-    const { isShowSelectedItems, currentRange, error } = this.state;
+
+  fetchIframeHtml = () => {
     const htmlFileName = this.htmlFileName;
     let iframeUrl = `${window.location.origin}/htmlFiles/${htmlFileName}`;
+    let _this = this;
+    let promise = fetch(iframeUrl)
+
+    let p1 = promise.then((response) => {
+      return response.text();
+    }).then((text) => {
+      this.iframeHtml = text;
+    })
+
+    let p2 = promise.then((response) => {
+      return response.clone().blob();
+    }).then((blob) => {
+      console.log('blog', blob);
+      var objectURL = URL.createObjectURL(blob);
+      this.iframeUrl = objectURL;
+    })
+
+    Promise.all([p1, p2], (response) => {
+      return response;
+    }).then(() => {
+      this.setState({
+        showPage: true
+      });
+    })
+  }
+
+  render() {
+    const { isShowSelectedItems, currentRange, error, showPage } = this.state;
+    if (!showPage) {
+      return <div> Loading....</div>
+    }
+    // let iframeUrl = `${window.location.origin}/htmlFiles/${htmlFileName}`;
     return (
       <div className="annotation-section">
         <div className="left-section">
           <div className="middle-section-container">
             <div className="middle-section">
-              <iframe ref={this.iframeRef} id="iframe_annotation" title="iframe Example 2" style={{ border: "none" }} src={iframeUrl} onLoad={this.handleIframeLoad}></iframe>
+              <iframe ref={this.iframeRef} id="iframe_annotation" title="iframe Example 2" style={{ border: "none" }} src={this.iframeUrl} onLoad={this.handleIframeLoad}></iframe>
               <div className="annotatedNodeElm">{this.createNode()}</div>
             </div>
           </div>
