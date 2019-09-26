@@ -430,7 +430,7 @@ class Annotate extends Component {
     let promise = fetch(iframeUrl)
 
     let p1 = promise.then((response) => {
-      return response.text();
+      return response.clone().text();
     }).then((text) => {
       this.iframeHtml = text;
     })
@@ -441,6 +441,7 @@ class Annotate extends Component {
       console.log('blog', blob);
       var objectURL = URL.createObjectURL(blob);
       this.iframeUrl = objectURL;
+
     })
 
     Promise.all([p1, p2], (response) => {
