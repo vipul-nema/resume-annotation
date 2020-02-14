@@ -18,7 +18,7 @@ const request = require("request");
 // var upload = multer({ storage: storage });
 
 //ServerAPI origin
-const origin = 'http://resume.annotate.com:8080';
+const origin = 'http://resume.annotate.com:8081';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
